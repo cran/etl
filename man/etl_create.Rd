@@ -37,11 +37,11 @@ etl_extract(obj, ...)
 
 \method{etl_extract}{etl_mtcars}(obj, ...)
 
-etl_load(obj, schema = FALSE, ...)
+etl_load(obj, ...)
 
-\method{etl_load}{default}(obj, schema = FALSE, ...)
+\method{etl_load}{default}(obj, ...)
 
-\method{etl_load}{etl_mtcars}(obj, schema = FALSE, ...)
+\method{etl_load}{etl_mtcars}(obj, ...)
 
 etl_transform(obj, ...)
 
@@ -60,15 +60,6 @@ etl_transform(obj, ...)
 
 \item{pattern}{regular expression matching file names to be deleted. By default,
 this matches filenames ending in \code{.csv} and \code{.zip}.}
-
-\item{schema}{Either a logical, a filename pointing to SQL schema file, or a character
-vector containing the schema itself. If \code{schema = TRUE}, then the built-in
-schema will be used. Note
-that the flavor of SQL in this file must match the type of the source. That is,
-if your object is of type \code{\link[dplyr]{src_mysql}}, then make sure that
-the schema you specify here is written in MySQL (and not PostgreSQL). Please
-note that SQL syntax is not, in general, completely portable. Use with caution, as this may
-clobber any existing data you have in an existing database.}
 }
 \value{
 Each one of these functions returns an \code{\link{etl}} object, invisibly.
@@ -83,8 +74,9 @@ The purposes of these functions are to download data from a
 particular data source from the Internet, process it, and load it
 into a SQL database server.
 
-There are four primary functions:
+There are five primary functions:
 \describe{
+ \item{\code{\link{etl_init}}}{Initialize the database schema.}
  \item{etl_extract}{Download data from the Internet and store it locally in
  its raw form.}
  \item{etl_transform}{Manipulate the raw data such that it can be loaded
@@ -97,10 +89,11 @@ There are four primary functions:
 
 Additionally, two convenience functions chain these operations together:
 \describe{
- \item{etl_create}{Run all four functions in succession with \code{scema=TRUE}.
+ \item{etl_create}{Run all five functions in succession.
  This is useful when you want
  to create the database from scratch.}
- \item{etl_update}{Run all four functions in succession with \code{scema=FALSE}.
+ \item{etl_update}{Run the \code{etl_extract}-\code{etl_transform}-\code{etl_load} functions
+ in succession.
  This is useful
  when the database already exists, but you want to insert some new data. }
 }
@@ -123,7 +116,7 @@ cars \%>\%
  etl_transform() \%>\%
  etl_load() \%>\%
  etl_cleanup()
-summary(cars)
+cars
 
 cars \%>\%
  tbl(from = "mtcars") \%>\%
@@ -138,7 +131,6 @@ cars \%>\%
  cars <- etl("mtcars", dir = "~/dumps/mtcars/")
  str(cars)
  }
-
 cars <- etl("mtcars")
 # Do it step-by-step
 cars \%>\%
@@ -154,6 +146,6 @@ schema <- system.file("sql/mtcars.sqlite3", package = "etl")
 etl_load(cars, schema)
 }
 \seealso{
-\code{\link{etl}}
+\code{\link{etl}}, \code{\link{etl_init}}
 }
 

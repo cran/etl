@@ -29,7 +29,8 @@
 #' \strong{transform}ing those data
 #' and placing the cleaned up data (usually in CSV format) into \code{load_dir},
 #' and finally \strong{load}ing the clean data into the SQL database.
-#' @return an object of class \code{etl_x} and \code{\link{etl}} that inherits
+#' @return For \code{\link{etl}}, an object of class \code{etl_x} and
+#' \code{\link{etl}} that inherits
 #' from \code{\link[dplyr]{src_sql}}
 #' @export
 #' @seealso \code{\link{etl_create}}
@@ -76,15 +77,18 @@ etl <- function(x, db = NULL, dir = tempdir(), ...) UseMethod("etl")
 
 etl.default <- function(x, db = NULL, dir = tempdir(), ...) {
   if (x != "mtcars") {
+    pkg <- x
     if (!requireNamespace(x)) {
       stop(paste0("Please make sure that the '", x, "' package is installed"))
     }
+  } else {
+    pkg <- "etl"
   }
   if (!dir.exists(dir)) {
     dir.create(dir, recursive = TRUE)
   }
   db <- verify_con(db, dir)
-  obj <- structure(db, data = NULL, "pkg" = x, dir = normalizePath(dir),
+  obj <- structure(db, data = NULL, "pkg" = pkg, dir = normalizePath(dir),
               files = NULL, push = NULL, class = c(paste0("etl_", x), "etl", class(db)))
 
   # create subdirectories within dir
@@ -112,6 +116,7 @@ etl.default <- function(x, db = NULL, dir = tempdir(), ...) {
 #' summary(cars)
 
 summary.etl <- function(object, ...) {
+  cat("files:\n")
   dplyr::bind_rows(summary_dir(attr(object, "raw_dir")),
                    summary_dir(attr(object, "load_dir"))) %>%
     print()
@@ -126,4 +131,35 @@ summary_dir <- function(dir) {
              path = dir, stringsAsFactors = FALSE)
 }
 
+#' @rdname etl
+#' @export
+#' @inheritParams summary.etl
+#' @return For \code{\link{is.etl}}, \code{TRUE} or \code{FALSE},
+#' depending on whether \code{x} has class \code{\link{etl}}
+#' @examples
+#' cars <- etl("mtcars")
+#' # returns TRUE
+#' is.etl(cars)
+#'
+#' # returns FALSE
+#' is.etl("hello world")
 
+is.etl <- function(object) inherits(object, "etl")
+
+#' @rdname etl
+#' @export
+#' @inheritParams base::print
+#' @importFrom tidyr extract_numeric
+#' @examples
+#' cars <- etl("mtcars") %>%
+#'   etl_create()
+#' cars
+
+print.etl <- function(x, ...) {
+  file_info <- dplyr::bind_rows(
+    summary_dir(attr(x, "raw_dir")),
+    summary_dir(attr(x, "load_dir"))) %>%
+    summarize_(N = ~sum(n), size = ~sum(tidyr::extract_numeric(size)))
+  cat("dir:  ", file_info$N, " files occupying ", file_info$size, " GB\n", sep = "")
+  NextMethod()
+}
