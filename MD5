@@ -1,8 +1,8 @@
-6ae4bcc605fd954cea2476ab4bb4dae1 *DESCRIPTION
+5bf0ec2ff0428e667559ce62949f0039 *DESCRIPTION
 41d302afa0c6386a3d8a157d43218be7 *NAMESPACE
 623302cddeec72a321d36471cda492ee *NEWS.md
 5ef58840f8376aa8a356d0375bce82e3 *R/dbRunScript.R
-37fe2c5af6418ba3e1c2d3f58b091be7 *R/etl.R
+e5d8245f6a79f97b8a70e96e37f0033c *R/etl.R
 ed07feab1913670bfc02d80d00c7febb *R/etl_cleanup.R
 13f69e0c87524612f12b98ae84ab891f *R/etl_create.R
 7348ed5d377adf55ffd0dd62678aa5ce *R/etl_extract.R
@@ -22,4 +22,4 @@ e91f3c07c16caf3744377adcc3f25ae9 *man/dbWipe.Rd
 02e259cf34fe9de58f7e75c295df8705 *man/smart_download.Rd
 fb3cf77d47986bca9b1ff508d51c5d09 *man/valid_year_month.Rd
 44cb03cf469b9dd0f655177a32d91168 *tests/testthat.R
-ab3712570c1a1b28df1d833d4eb476fa *tests/testthat/test-etl.R
+44a2256c054323b78c6eb3ae97ccad9b *tests/testthat/test-etl.R
