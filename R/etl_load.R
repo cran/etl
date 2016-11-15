@@ -12,7 +12,7 @@
 #' tbl(cars, "mtcars")
 #'
 #' # But you can also specify your own schema if you want
-#' schema <- system.file("sql/mtcars.sqlite3", package = "etl")
+#' schema <- system.file("sql", "init.sqlite", package = "etl")
 #' etl_load(cars, schema)
 
 etl_load <- function(obj, ...) UseMethod("etl_load")
@@ -24,7 +24,8 @@ etl_load <- function(obj, ...) UseMethod("etl_load")
 etl_load.default <- function(obj, ...) {
   obj <- verify_con(obj)
   # insert data from somewhere
-  warning(paste0("No available methods. Did you write the method etl_load.", class(obj)[1]), "()?")
+  warning(paste0("No available methods. Did you write the method etl_load.",
+                 class(obj)[1]), "()?")
   invisible(obj)
 }
 
@@ -37,10 +38,11 @@ etl_load.default <- function(obj, ...) {
 
 etl_load.etl_mtcars <- function(obj, ...) {
   message("Loading processed data...")
-  data <- utils::read.csv(paste0(attr(obj, "load_dir"), "/mtcars.csv"))
+  data <- utils::read.csv(file.path(attr(obj, "load_dir"), "mtcars.csv"))
 
   obj <- verify_con(obj)
-  if (DBI::dbWriteTable(obj$con, "mtcars", value = data, row.names = FALSE, append = TRUE)) {
+  if (DBI::dbWriteTable(obj$con, "mtcars", value = data, row.names = FALSE,
+                        append = TRUE)) {
     message("Data was successfully written to database.")
   }
   invisible(obj)
@@ -73,7 +75,8 @@ etl_load.etl_mtcars <- function(obj, ...) {
 #' src_tbls(cars)
 
 etl_init <- function(obj, script = NULL, schema_name = "init",
-                     pkg = attr(obj, "pkg"), ext = NULL, ...) UseMethod("etl_init")
+                     pkg = attr(obj, "pkg"),
+                     ext = NULL, ...) UseMethod("etl_init")
 
 #' @rdname etl_init
 #' @method etl_init default
@@ -123,14 +126,15 @@ etl_init.default <- function(obj, script = NULL, schema_name = "init",
 #' find_schema(cars, "init", "etl")
 #' find_schema(cars, "my_crazy_schema", "etl")
 #'
-find_schema <- function(obj, schema_name = "init", pkg = attr(obj, "pkg"), ext = NULL, ...) {
+find_schema <- function(obj, schema_name = "init",
+                        pkg = attr(obj, "pkg"), ext = NULL, ...) {
   if (is.null(ext)) {
     ext <- stringr::str_extract(class(obj), pattern = "src_.+") %>%
       stats::na.omit() %>%
       gsub(pattern = "src_", replacement = "", x = .) %>%
       utils::head(1)
   }
-  sql <- paste0("sql/", schema_name, ".", ext)
+  sql <- file.path("sql", paste0(schema_name, ".", ext))
   file <- system.file(sql, package = pkg, mustWork = FALSE)
   if (!file.exists(file)) {
     message("Could not find schema initialization script")

@@ -27,12 +27,13 @@ verify_con <- function(x, dir = tempdir()) {
 #' Download only those files that don't already exist
 #' @param obj an \code{\link{etl}} object
 #' @param src a character vector of URLs that you want to download
-#' @param new_filenames an optional character vector of filenames for the new (local) files. Defaults to
-#' having the same filenames as those in \code{src}.
-#' @param ... arguments passed to \code{\link[utils]{download.file}}
+#' @param new_filenames an optional character vector of filenames for the new
+#'  (local) files. Defaults to having the same filenames as those in \code{src}.
+#' @param ... arguments passed to \code{\link[downloader]{download}}
 #' @details Downloads only those files in \code{src} that are not already present in
 #' the directory specified by the \code{raw_dir} attribute of \code{obj}.
 #' @author idiom courtesy of Hadley Wickham
+#' @importFrom downloader download
 #' @export
 #'
 #' @examples
@@ -43,9 +44,9 @@ smart_download <- function(obj, src, new_filenames = basename(src), ...) {
   if (length(src) != length(new_filenames)) {
     stop("src and new_filenames must be of the same length")
   }
-  lcl <- paste0(attr(obj, "raw_dir"), "/", new_filenames)
+  lcl <- file.path(attr(obj, "raw_dir"), new_filenames)
   missing <- !file.exists(lcl)
-  mapply(utils::download.file, src[missing], lcl[missing], ... = ...)
+  mapply(downloader::download, src[missing], lcl[missing], ... = ...)
 }
 
 #' Ensure that years and months are within a certain time span
@@ -82,7 +83,8 @@ smart_download <- function(obj, src, new_filenames = basename(src), ...) {
 #'     begin = clinton$start, end = clinton$end)
 #' }
 #'
-valid_year_month <- function(years, months, begin = "1970-01-01", end = Sys.Date()) {
+valid_year_month <- function(years, months,
+                             begin = "1970-01-01", end = Sys.Date()) {
   years <- as.numeric(years)
   months <- as.numeric(months)
   begin <- as.Date(begin)
@@ -90,7 +92,8 @@ valid_year_month <- function(years, months, begin = "1970-01-01", end = Sys.Date
 
   valid_months <- data.frame(expand.grid(years, months)) %>%
     rename_(year = ~Var1, month = ~Var2) %>%
-    mutate_(month_begin = ~lubridate::ymd(paste(year, month, "01", sep = "/"))) %>%
+    mutate_(month_begin = ~lubridate::ymd(paste(year, month,
+                                                "01", sep = "/"))) %>%
     mutate_(month_end = ~lubridate::ymd(
       ifelse(month == 12, paste(year + 1, "01/01", sep = "/"),
                           paste(year, month + 1, "01", sep = "/"))) - 1) %>%
@@ -121,12 +124,16 @@ valid_year_month <- function(years, months, begin = "1970-01-01", end = Sys.Date
 #' }
 #' }
 
-match_files_by_year_months <- function(files, pattern, years = as.numeric(format(Sys.Date(), '%Y')), months = 1:12, ...) {
+match_files_by_year_months <- function(files, pattern,
+                                       years = as.numeric(
+                                         format(Sys.Date(), '%Y')),
+                                       months = 1:12, ...) {
   if (length(files) < 1) {
     return(NULL)
   }
   file_df <- data.frame(filename = files,
-                        file_date = extract_date_from_filename(files, pattern)) %>%
+                        file_date = extract_date_from_filename(files,
+                                                               pattern)) %>%
     mutate_(file_year = ~lubridate::year(file_date),
             file_month = ~lubridate::month(file_date))
   valid <- valid_year_month(years, months)
@@ -165,6 +172,33 @@ extract_date_from_filename <- function(files, pattern, ...) {
 dbWipe <- function(conn, ...) {
   x <- DBI::dbListTables(conn)
   if (length(x) > 0) {
-    sapply(x, DBI::dbRemoveTable, conn = conn, ... = ...)
+    lapply(x, DBI::dbRemoveTable, conn = conn, ... = ...)
   }
+}
+
+#' Connect to local MySQL Server using ~/.my.cnf
+#' @param dbname name of the local database you wish to connect to. Default is
+#' \code{test}, as in \code{\link[RMySQL]{mysqlHasDefault}}.
+#' @param groups section of \code{~/.my.cnf} file. Default is \code{rs-dbi} as in
+#' \code{\link[RMySQL]{mysqlHasDefault}}
+#' @param ... arguments passed to \code{\link[dplyr]{src_mysql}}
+#' @importFrom dplyr src_mysql
+#' @export
+#' @seealso \code{\link[dplyr]{src_mysql}}, \code{\link[RMySQL]{mysqlHasDefault}}
+#' @examples
+#' if (require(RMySQL) && mysqlHasDefault()) {
+#'   # connect to test database using rs-dbi
+#'   db <- src_mysql_cnf()
+#'   class(db)
+#'   db
+#'   # connect to another server using the 'client' group
+#'   src_mysql_cnf(groups = "client")
+#' }
+src_mysql_cnf <- function(dbname = "test", groups = "rs-dbi", ...) {
+  if (!file.exists(file.path("~", ".my.cnf"))) {
+    stop("No MySQL config file found.")
+  }
+  dplyr::src_mysql(default.file = file.path("~", ".my.cnf"),
+            groups = groups, dbname = dbname,
+            user = NULL, password = NULL, ...)
 }
