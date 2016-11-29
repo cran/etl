@@ -1,14 +1,14 @@
-f6fa482141ae5ff1253435bc49398959 *DESCRIPTION
+0e647d08b07a2c2af278749782064439 *DESCRIPTION
 a0ae2888774ace6dfeef4f1d375b398a *NAMESPACE
-1d720e10e21ae0de15c71b1c961df4a5 *NEWS.md
+4700e24c6f760c1b49026ca2dc703b05 *NEWS.md
 5ef58840f8376aa8a356d0375bce82e3 *R/dbRunScript.R
 8208748c15d20f70143633f74b3115e6 *R/etl.R
 4e4c9d5fa6e2e55cb18258f7cc011ee3 *R/etl_cleanup.R
-13f69e0c87524612f12b98ae84ab891f *R/etl_create.R
+990ea7fe7c456f0605cce9370d4818e8 *R/etl_create.R
 3aa388c58f39d6c355ab4583ac46a57d *R/etl_extract.R
 fd228a6500406210b33c9b2e35994335 *R/etl_load.R
 eed50d697206379e13d284ff7ad624f8 *R/etl_transform.R
-1425e836cc5236c63f49e5e13683e95f *R/utils.R
+25add0f6ab39df81500e75d00ca52515 *R/utils.R
 149ae1e61f192c2657787df4fcf943f0 *README.md
 b44f4d7413ea10f14702b53233693f05 *inst/sql/init.mysql
 10c75ee295b3b89563fabb6a9c68265c *inst/sql/init.postgres
@@ -16,7 +16,7 @@ b44f4d7413ea10f14702b53233693f05 *inst/sql/init.mysql
 f4f96eb357a6f4f6655398b4a0e8e973 *man/dbRunScript.Rd
 e91f3c07c16caf3744377adcc3f25ae9 *man/dbWipe.Rd
 6792ed791e91b562f40060b15bb19001 *man/etl.Rd
-c6cf19d549c1d86268953ff8d2e869dd *man/etl_create.Rd
+0f6291cf0e50c2ae58b4d6f2b1ac6b86 *man/etl_create.Rd
 4ddd3ea642274d858ce390378352164a *man/etl_init.Rd
 706af5a1c18f336925fdf1aaeae662d3 *man/match_files_by_year_months.Rd
 d987b708648259539d585cdbf14dbe18 *man/smart_download.Rd

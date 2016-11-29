@@ -1,8 +1,8 @@
 Package: etl
 Type: Package
 Title: Extract-Transform-Load Framework for Medium Data
-Version: 0.3.4
-Date: 2016-11-07
+Version: 0.3.5
+Date: 2016-11-28
 Authors@R: c(
     person("Ben", "Baumer", email = "ben.baumer@gmail.com",
       role = c("aut", "cre")),
@@ -23,8 +23,8 @@ URL: http://github.com/beanumber/etl
 BugReports: https://github.com/beanumber/etl/issues
 RoxygenNote: 5.0.1
 NeedsCompilation: no
-Packaged: 2016-11-07 18:10:04 UTC; bbaumer
+Packaged: 2016-11-29 14:42:22 UTC; bbaumer
 Author: Ben Baumer [aut, cre],
   Carson Sievert [ctb]
 Repository: CRAN
-Date/Publication: 2016-11-15 19:56:21
+Date/Publication: 2016-11-29 18:10:32
