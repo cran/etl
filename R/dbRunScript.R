@@ -4,13 +4,11 @@
 #' @param script Either a filename pointing to an SQL script or
 #' a character vector of length 1 containing SQL.
 #' @param echo print the SQL commands to the output?
-#' @param ... arguments passed to \code{\link[DBI]{dbGetQuery}}
-#' @details The SQL script file must be \code{;} delimited. This will function will
-#' be superseded by \code{dbExecute} in the next release of \pkg{DBI}.
-#' See \url{https://github.com/rstats-db/DBI/pull/109}.
-#' @return a list of results from \code{dbGetQuery} for each of the individual
+#' @param ... arguments passed to \code{\link[DBI]{dbExecute}}
+#' @details The SQL script file must be \code{;} delimited.
+#' @return a list of results from \code{dbExecute} for each of the individual
 #' SQL statements in \code{script}.
-#' @importFrom DBI SQL dbGetQuery
+#' @importFrom DBI SQL dbExecute
 #' @export
 #'
 #' @examples
@@ -25,7 +23,7 @@
 #' \dontrun{
 #' if (require(RMySQL)) {
 #'  con <- dbConnect(RMySQL::MySQL(), default.file = path.expand("~/.my.cnf"),
-#'    group = "client",user = NULL, password = NULL, dbname = "mysql")
+#'    group = "client",user = NULL, password = NULL, dbname = "mysql", host = "127.0.0.1")
 #'  dbRunScript(con, script = sql)
 #'  dbRunScript(con, script = sql2)
 #'  dbRunScript(con, script = sql3)
@@ -51,5 +49,5 @@ dbRunScript <- function(conn, script, echo = FALSE, ...) {
   if (echo) {
     print(good)
   }
-  lapply(good, DBI::dbGetQuery, conn = conn, ... = ...)
+  lapply(good, DBI::dbExecute, conn = conn, ... = ...)
 }

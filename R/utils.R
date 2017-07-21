@@ -24,31 +24,6 @@ verify_con <- function(x, dir = tempdir()) {
 # }
 
 
-#' Download only those files that don't already exist
-#' @param obj an \code{\link{etl}} object
-#' @param src a character vector of URLs that you want to download
-#' @param new_filenames an optional character vector of filenames for the new
-#'  (local) files. Defaults to having the same filenames as those in \code{src}.
-#' @param ... arguments passed to \code{\link[downloader]{download}}
-#' @details Downloads only those files in \code{src} that are not already present in
-#' the directory specified by the \code{raw_dir} attribute of \code{obj}.
-#' @author idiom courtesy of Hadley Wickham
-#' @importFrom downloader download
-#' @export
-#'
-#' @examples
-#' cars <- etl("mtcars")
-#' urls <- c("http://www.google.com", "http://www.nytimes.com")
-#' smart_download(cars, src = urls)
-smart_download <- function(obj, src, new_filenames = basename(src), ...) {
-  if (length(src) != length(new_filenames)) {
-    stop("src and new_filenames must be of the same length")
-  }
-  lcl <- file.path(attr(obj, "raw_dir"), new_filenames)
-  missing <- !file.exists(lcl)
-  mapply(downloader::download, src[missing], lcl[missing], ... = ...)
-}
-
 #' Ensure that years and months are within a certain time span
 #' @param years a numeric vector of years
 #' @param months a numeric vector of months
@@ -109,7 +84,7 @@ valid_year_month <- function(years, months,
 #' @description Match year and month vectors to filenames
 #' @inheritParams extract_date_from_filename
 #' @param years a numeric vector of years
-#' @param months a numberic vector of months
+#' @param months a numeric vector of months
 #' @return a character vector of \code{files} that match the \code{pattern}, \code{year}, and \code{month} arguments
 #' @importFrom lubridate year month
 #' @export
@@ -182,7 +157,6 @@ dbWipe <- function(conn, ...) {
 #' @param groups section of \code{~/.my.cnf} file. Default is \code{rs-dbi} as in
 #' \code{\link[RMySQL]{mysqlHasDefault}}
 #' @param ... arguments passed to \code{\link[dplyr]{src_mysql}}
-#' @importFrom dplyr src_mysql
 #' @export
 #' @seealso \code{\link[dplyr]{src_mysql}}, \code{\link[RMySQL]{mysqlHasDefault}}
 #' @examples
@@ -211,3 +185,41 @@ src_mysql_cnf <- function(dbname = "test", groups = "rs-dbi", ...) {
               user = NULL, password = NULL, ...)
   }
 }
+
+#' Return the database type for an ETL or DBI connection
+#' @param obj and \code{\link{etl}} or \code{\link[DBI]{DBIConnection-class}} object
+#' @param ... currently ignored
+#' @export
+#' @examples
+#' if (require(RMySQL) && mysqlHasDefault()) {
+#'   # connect to test database using rs-dbi
+#'   db <- src_mysql_cnf()
+#'   class(db)
+#'   db
+#'   # connect to another server using the 'client' group
+#'   db_type(db)
+#'   db_type(db$con)
+#' }
+
+db_type <- function(obj, ...) UseMethod("db_type")
+
+#' @rdname db_type
+#' @method db_type src_dbi
+#' @export
+
+db_type.src_dbi <- function(obj, ...) {
+  db_type(obj$con)
+}
+
+#' @rdname db_type
+#' @importFrom utils head
+#' @method db_type DBIConnection
+#' @export
+
+db_type.DBIConnection <- function(obj, ...) {
+  class(obj) %>%
+    gsub(pattern = "Connection", replacement = "", x = .) %>%
+    tolower() %>%
+    utils::head(1)
+}
+

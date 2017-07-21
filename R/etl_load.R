@@ -37,16 +37,50 @@ etl_load.default <- function(obj, ...) {
 #' @export
 
 etl_load.etl_mtcars <- function(obj, ...) {
-  message("Loading processed data...")
-  data <- utils::read.csv(file.path(attr(obj, "load_dir"), "mtcars.csv"))
-
-  obj <- verify_con(obj)
-  if (DBI::dbWriteTable(obj$con, "mtcars", value = data, row.names = FALSE,
-                        append = TRUE)) {
-    message("Data was successfully written to database.")
-  }
+  smart_upload(obj)
   invisible(obj)
 }
+
+#' Upload a list of files to the DB
+#' @param obj An \code{\link{etl}} object
+#' @param src a list of CSV files to upload. If \code{NULL}, will return all
+#' CSVs in the load directory
+#' @param tablenames a list the same length as \code{src} of tablenames in the
+#' database corresponding to each of the files in \code{src}. If \code{NULL},
+#' will default to the same name as \code{src}, without paths or file extensions.
+#' @param ... arguments passed to \code{\link[DBI]{dbWriteTable}}
+#' @importFrom DBI dbWriteTable
+#' @export
+#' @examples
+#' \dontrun{
+#' if (require(RMySQL)) {
+#'   # must have pre-existing database "fec"
+#'   # if not, try
+#'   system("mysql -e 'CREATE DATABASE IF NOT EXISTS fec;'")
+#'   db <- src_mysql_cnf(dbname = "mtcars")
+#' }
+#' }
+smart_upload <- function(obj, src = NULL, tablenames = NULL, ...) {
+  if (is.null(src)) {
+    src <- list.files(attr(obj, "load_dir"), pattern = "\\.csv", full.names = TRUE)
+  }
+  if (is.null(tablenames)) {
+    tablenames <- basename(src) %>%
+      gsub("\\.csv", "", x = .)
+  }
+  if (length(src) != length(tablenames)) {
+    stop("src and tablenames must be of the same length")
+  }
+  message(paste("Uploading", length(src), "file(s) to the database..."))
+
+  # write the tables directly to the DB
+  mapply(DBI::dbWriteTable, name = tablenames, value = src,
+         MoreArgs = list(conn = obj$con, append = TRUE, ... = ...))
+
+  invisible(obj)
+}
+
+
 
 #' Initialize a database using a defined schema
 #'
@@ -116,7 +150,6 @@ etl_init.default <- function(obj, script = NULL, schema_name = "init",
 #' has class \code{\link[dplyr]{src_sqlite}} then \code{ext} will be \code{sqlite}.
 #' @param ... Currently ignored
 #' @importFrom stats na.omit
-#' @importFrom utils head
 #' @importFrom stringr str_extract
 #' @export
 #' @examples
@@ -129,10 +162,7 @@ etl_init.default <- function(obj, script = NULL, schema_name = "init",
 find_schema <- function(obj, schema_name = "init",
                         pkg = attr(obj, "pkg"), ext = NULL, ...) {
   if (is.null(ext)) {
-    ext <- stringr::str_extract(class(obj), pattern = "src_.+") %>%
-      stats::na.omit() %>%
-      gsub(pattern = "src_", replacement = "", x = .) %>%
-      utils::head(1)
+    ext <- db_type(obj)
   }
   sql <- file.path("sql", paste0(schema_name, ".", ext))
   file <- system.file(sql, package = pkg, mustWork = FALSE)
