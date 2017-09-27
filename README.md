@@ -5,7 +5,7 @@ ETL
 
 `etl` is an R package to facilitate [Extract - Transform - Load (ETL)](https://en.wikipedia.org/wiki/Extract,_transform,_load) operations for **medium data**. The end result is generally a populated SQL database, but the user interaction takes place solely within R.
 
-`etl` is now on CRAN, so you can install it in the usual way, then load it.
+`etl` is on CRAN, so you can install it in the usual way, then load it.
 
 ``` r
 install.packages("etl")
@@ -21,9 +21,9 @@ Instantiate an `etl` object using a string that determines the class of the resu
 cars <- etl("mtcars")
 ```
 
-    ## Not a valid src. Creating a src_sqlite for you at:
+    ## No database was specified so I created one for you at:
 
-    ## /tmp/Rtmp9uullQ/file735a32cac3de.sqlite3
+    ## /tmp/RtmpIMUIel/file68b36216d2b2.sqlite3
 
 ``` r
 class(cars)
@@ -39,8 +39,11 @@ Connect to a local or remote database
 > Note: If you want to use a database other than a local RSQLite, you must create the `mtcars` database and have permission to write to it first!
 
 ``` r
+# For PostgreSQL
 library(RPostgreSQL)
 db <- src_postgres(dbname = "mtcars", user = "postgres", host = "localhost")
+
+# Alternatively, for MySQL
 library(RMySQL)
 db <- src_mysql(dbname = "mtcars", user = "r-user", password = "mypass", host = "localhost")
 cars <- etl("mtcars", db)
@@ -84,7 +87,7 @@ cars %>%
   etl_load()
 ```
 
-    ## Uploading 1 file(s) to the database...
+    ## Loading 1 file(s) into the database...
 
 Do it all at once
 -----------------
@@ -96,13 +99,13 @@ cars %>%
   etl_create()
 ```
 
-    ## Loading SQL script at /home/bbaumer/R/x86_64-pc-linux-gnu-library/3.2/etl/sql/init.sqlite
+    ## Running SQL script at /home/bbaumer/R/x86_64-pc-linux-gnu-library/3.4/etl/sql/init.sqlite
 
     ## Extracting raw data...
 
     ## Transforming raw data...
 
-    ## Uploading 1 file(s) to the database...
+    ## Loading 1 file(s) into the database...
 
 You can also update an existing database without re-initializing, but watch out for primary key collisions.
 
@@ -110,39 +113,6 @@ You can also update an existing database without re-initializing, but watch out 
 cars %>%
   etl_update()
 ```
-
-Step-by-step
-------------
-
-Under the hood, there are four functions that `etl_update` chains together:
-
-``` r
-getS3method("etl_update", "default")
-```
-
-    ## function(obj, ...) {
-    ##   obj <- obj %>%
-    ##     etl_extract(...) %>%
-    ##     etl_transform(...) %>%
-    ##     etl_load(...)
-    ##   invisible(obj)
-    ## }
-    ## <environment: namespace:etl>
-
-`etl_create` is simply a call to `etl_update` that forces the SQL database to be written from scratch.
-
-``` r
-getS3method("etl_create", "default")
-```
-
-    ## function(obj, ...) {
-    ##   obj <- obj %>%
-    ##     etl_init(...) %>%
-    ##     etl_update(...) %>%
-    ##     etl_cleanup(...)
-    ##   invisible(obj)
-    ## }
-    ## <environment: namespace:etl>
 
 Do Your Analysis
 ----------------
@@ -157,7 +127,7 @@ cars %>%
 ```
 
     ## # Source:   lazy query [?? x 3]
-    ## # Database: sqlite 3.19.3 [/tmp/Rtmp9uullQ/file735a32cac3de.sqlite3]
+    ## # Database: sqlite 3.9.1 [/tmp/RtmpIMUIel/file68b36216d2b2.sqlite3]
     ##     cyl     N mean_mpg
     ##   <int> <int>    <dbl>
     ## 1     4    11 26.66364
@@ -174,22 +144,40 @@ etl_extract.etl_pkgname()
 etl_load.etl_pkgname()
 ```
 
-You may also wish to write
-
-``` r
-etl_transform.etl_pkgname()
-etl_cleanup.etl_pkgname()
-```
-
-All of these functions must take and return an object of class `etl_pkgname` that inherits from `etl`. Please see the packages listed below for examples.
+Please see the "[Extending etl](https://github.com/beanumber/etl/blob/master/vignettes/extending_etl.Rmd)" vignette for more information.
 
 Use other ETL packages
 ----------------------
 
-Packages that use the `etl` framework:
+-   [macleish](https://github.com/beanumber/etl) [![Travis-CI Build Status](https://travis-ci.org/beanumber/macleish.svg?branch=master)](https://travis-ci.org/beanumber/macleish) [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/macleish)](https://cran.r-project.org/package=macleish) : Weather and spatial data from the MacLeish Field Station in Whately, MA.
+-   [airlines](https://github.com/beanumber/airlines) [![Travis-CI Build Status](https://travis-ci.org/beanumber/airlines.svg?branch=master)](https://travis-ci.org/beanumber/airlines) : On-time flight arrival data from the Bureau of Transportation Statistics
+-   [citibike](https://github.com/beanumber/citibike) [![Travis-CI Build Status](https://travis-ci.org/beanumber/citibike.svg?branch=master)](https://travis-ci.org/beanumber/citibike) : Municipal bike-sharing system in New York City
+-   [nyc311](https://github.com/beanumber/nyc311) [![Travis-CI Build Status](https://travis-ci.org/beanumber/nyc311.svg?branch=master)](https://travis-ci.org/beanumber/nyc311) : Phone calls to New York City's feedback hotline
+-   [fec](https://github.com/beanumber/fec) [![Travis-CI Build Status](https://travis-ci.org/beanumber/fec.svg?branch=master)](https://travis-ci.org/beanumber/fec) : Campaign contribution data from the Federal Election Commission
+-   [imdb](https://github.com/beanumber/imdb) [![Travis-CI Build Status](https://travis-ci.org/beanumber/imdb.svg?branch=master)](https://travis-ci.org/beanumber/imdb) : Mirror of the Internet Movie Database
+
+Cite
+----
+
+Please see [the full manuscript](https://arxiv.org/abs/1708.07073) for additional details.
 
 ``` r
-tools::dependsOnPkgs("etl")
+citation("etl")
 ```
 
-    ## [1] "airlines" "imdb"     "macleish" "nyc311"   "nyctaxi"
+    ## 
+    ## To cite package 'etl' in publications use:
+    ## 
+    ##   Ben Baumer (2017). etl: Extract-Transform-Load Framework for
+    ##   Medium Data. R package version 0.3.6.9000.
+    ##   http://github.com/beanumber/etl
+    ## 
+    ## A BibTeX entry for LaTeX users is
+    ## 
+    ##   @Manual{,
+    ##     title = {etl: Extract-Transform-Load Framework for Medium Data},
+    ##     author = {Ben Baumer},
+    ##     year = {2017},
+    ##     note = {R package version 0.3.6.9000},
+    ##     url = {http://github.com/beanumber/etl},
+    ##   }

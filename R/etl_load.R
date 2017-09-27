@@ -22,21 +22,6 @@ etl_load <- function(obj, ...) UseMethod("etl_load")
 #' @export
 
 etl_load.default <- function(obj, ...) {
-  obj <- verify_con(obj)
-  # insert data from somewhere
-  warning(paste0("No available methods. Did you write the method etl_load.",
-                 class(obj)[1]), "()?")
-  invisible(obj)
-}
-
-#' @rdname etl_create
-#' @method etl_load etl_mtcars
-#' @importFrom DBI dbWriteTable
-#' @importFrom utils read.csv
-#' @importFrom methods is
-#' @export
-
-etl_load.etl_mtcars <- function(obj, ...) {
   smart_upload(obj)
   invisible(obj)
 }
@@ -69,9 +54,9 @@ smart_upload <- function(obj, src = NULL, tablenames = NULL, ...) {
       gsub("\\.csv", "", x = .)
   }
   if (length(src) != length(tablenames)) {
-    stop("src and tablenames must be of the same length")
+    warning("src and tablenames must be of the same length")
   }
-  message(paste("Uploading", length(src), "file(s) to the database..."))
+  message(paste("Loading", length(src), "file(s) into the database..."))
 
   # write the tables directly to the DB
   mapply(DBI::dbWriteTable, name = tablenames, value = src,
