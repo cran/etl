@@ -22,8 +22,13 @@
 \usage{
 etl_cleanup(obj, ...)
 
-\method{etl_cleanup}{default}(obj, delete_raw = FALSE, delete_load = FALSE,
-  pattern = "\\\\.(csv|zip)$", ...)
+\method{etl_cleanup}{default}(
+  obj,
+  delete_raw = FALSE,
+  delete_load = FALSE,
+  pattern = "\\\\.(csv|zip)$",
+  ...
+)
 
 etl_create(obj, ...)
 
@@ -148,7 +153,9 @@ tbl(cars, "mtcars")
 
 # But you can also specify your own schema if you want
 schema <- system.file("sql", "init.sqlite", package = "etl")
-etl_load(cars, schema)
+cars \%>\%
+  etl_init(schema) \%>\%
+  etl_load()
 }
 \seealso{
 \code{\link{etl}}, \code{\link{etl_init}}

@@ -19,6 +19,8 @@ The `etl` package provides a series of S3 generics and convenience functions tha
 
 - [macleish](https://github.com/beanumber/etl): [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/macleish)](https://cran.r-project.org/package=macleish)
  Weather and spatial data from the MacLeish Field Station in Whately, MA. 
+- [nyctaxi](https://github.com/beanumber/nyctaxi): [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/nyctaxi)](https://cran.r-project.org/package=nyctaxi)
+ Trip data from the New York City Taxi and Limousine Commission 
 - [airlines](https://github.com/beanumber/airlines): On-time flight arrival data from the Bureau of Transportation Statistics
 - [citibike](https://github.com/beanumber/citibike): Municipal bike-sharing system in New York City
 - [nyc311](https://github.com/beanumber/nyc311): Phone calls to New York City's feedback hotline
@@ -29,7 +31,7 @@ Please see these packages for examples of how to develop an `etl`-dependent pack
 
 ## The basics
 
-Suppose that you want to write the `etl`-dependent package `foo`. In order for `foo` to work, it should implement at least one of these methods (and usually all three):
+Suppose that you want to write the `etl`-dependent package `foo`. In order for `foo` to work, it should implement at least one of these methods (and sometimes all three):
 
 1. `etl_extract.etl_foo()` - downloads data from Internet
 2. `etl_transform.etl_foo()` - takes downloaded data and puts it into CSV format suitable for import to SQL
@@ -87,7 +89,7 @@ These functions can generally be used without modification and thus are *not* co
 
 The `etl_init()` function will initialize the SQL database. 
 
-If you want to contribute your own hard-coded SQL initalization script, it must be placed in `inst/sql/`. The `etl_init()` function will look there, and find files whose file extensions match the database type. For example, scripts written for MySQL should have the `.mysql` file extension, while scripts written for PostgreSQL should have the `.postgresql` file extension. 
+If you want to contribute your own hard-coded SQL initialization script, it must be placed in `inst/sql/`. The `etl_init()` function will look there, and find files whose file extensions match the database type. For example, scripts written for MySQL should have the `.mysql` file extension, while scripts written for PostgreSQL should have the `.postgresql` file extension. 
 
 If no such file exists, all of the tables and views in the database will be deleted, and new tables schemas will be created on-the-fly by `dplyr`. 
 

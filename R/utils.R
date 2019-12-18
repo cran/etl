@@ -59,22 +59,22 @@ verify_con <- function(x, dir = tempdir()) {
 #' }
 #'
 valid_year_month <- function(years, months,
-                             begin = "1970-01-01", end = Sys.Date()) {
+                             begin = "1870-01-01", end = Sys.Date()) {
   years <- as.numeric(years)
   months <- as.numeric(months)
   begin <- as.Date(begin)
   end <- as.Date(end)
 
   valid_months <- data.frame(expand.grid(years, months)) %>%
-    rename_(year = ~Var1, month = ~Var2) %>%
-    mutate_(month_begin = ~lubridate::ymd(paste(year, month,
-                                                "01", sep = "/"))) %>%
-    mutate_(month_end = ~lubridate::ymd(
+    rename(year = Var1, month = Var2) %>%
+    mutate(month_begin = lubridate::ymd(paste(year, month,
+                                              "01", sep = "/"))) %>%
+    mutate(month_end = lubridate::ymd(
       ifelse(month == 12, paste(year + 1, "01/01", sep = "/"),
                           paste(year, month + 1, "01", sep = "/"))) - 1) %>%
-    filter_(~year > 0 & month >= 1 & month <= 12) %>%
-    filter_(~month_begin >= begin & month_begin <= end) %>%
-    arrange_(~month_begin)
+    filter(year > 0 & month >= 1 & month <= 12) %>%
+    filter(month_begin >= begin & month_begin <= end) %>%
+    arrange(month_begin)
   return(valid_months)
 }
 
@@ -82,7 +82,6 @@ valid_year_month <- function(years, months,
 
 #' Match year and month vectors to filenames
 #' @description Match year and month vectors to filenames
-#' @inheritParams extract_date_from_filename
 #' @param years a numeric vector of years
 #' @param months a numeric vector of months
 #' @return a character vector of \code{files} that match the \code{pattern}, \code{year}, and \code{month} arguments
@@ -109,12 +108,12 @@ match_files_by_year_months <- function(files, pattern,
   file_df <- data.frame(filename = files,
                         file_date = extract_date_from_filename(files,
                                                                pattern)) %>%
-    mutate_(file_year = ~lubridate::year(file_date),
-            file_month = ~lubridate::month(file_date))
+    mutate(file_year = lubridate::year(file_date),
+           file_month = lubridate::month(file_date))
   valid <- valid_year_month(years, months)
   good <- file_df %>%
     left_join(valid, by = c("file_year" = "year", "file_month" = "month")) %>%
-    filter_(~!is.na(month_begin))
+    filter(!is.na(month_begin))
   return(as.character(good$filename))
 }
 
@@ -223,3 +222,36 @@ db_type.DBIConnection <- function(obj, ...) {
     utils::head(1)
 }
 
+#' Create an ETL package skeleton
+#' @importFrom usethis create_package use_package
+#' @param ... arguments passed to \code{\link[usethis]{create_package}}
+#' @export
+#' @details Extends \code{\link[usethis]{create_package}} and places a template source file in
+#' the R subdirectory of the new package. The file has a working stub of \code{etl_extract}.
+#' The new package can be built immediately and run.
+#'
+#' New S3 methods for \code{\link{etl_transform}} and \code{\link{etl_load}} can be added if
+#' necessary, but the default methods may suffice.
+#' @seealso \code{\link{etl_extract}}, \code{\link{etl_transform}}, \code{\link{etl_load}}
+#' @examples
+#' \dontrun{
+#' path <- file.path(tempdir(), "scorecard")
+#' create_etl_package(path)
+#' }
+#' # Now switch projects, and "Install and Restart"
+
+create_etl_package <- function(...) {
+  usethis::create_package(...)
+  path <- list(...)[[1]]
+  # pkg <- devtools:::extract_package_name(path)
+  pkg <- basename(normalizePath(path, mustWork = FALSE))
+  src <- system.file(package = "etl", "src", "etl_template.R")
+  dest <- file.path(path, "R", "etl.R")
+  if (file.copy(src, dest)) {
+    message("* Creating R/etl.R template source file...")
+    readLines(dest) %>%
+      gsub("foo", pkg, x = .) %>%
+      writeLines(con = dest)
+  }
+#  usethis::use_package("etl", "Depends")
+}

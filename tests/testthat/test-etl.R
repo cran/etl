@@ -1,8 +1,5 @@
 context("etl")
 
-## TODO: Rename context
-## TODO: Add more tests
-
 test_that("sqlite works", {
   cars_sqlite <- etl("mtcars")
   expect_s3_class(cars_sqlite, c("etl_mtcars", "etl", "src_sqlite", "src_dbi"))
@@ -10,7 +7,7 @@ test_that("sqlite works", {
   expect_message(find_schema(cars_sqlite, "my_crazy_schema", "etl"))
   expect_output(summary(cars_sqlite), "files")
   expect_message(cars_sqlite %>% etl_create(), "Loading")
-  expect_message(cars_sqlite %>% etl_init(), "Running SQL script")
+  expect_message(cars_sqlite %>% etl_init(), "SQL script")
   expect_message(
     cars_sqlite %>% etl_cleanup(delete_raw = TRUE, delete_load = TRUE),
     "Deleting files")
@@ -85,6 +82,7 @@ test_that("etl works", {
 })
 
 test_that("smart_download works", {
+  skip_on_cran()
   cars <- etl("mtcars")
   # first download some files
 #  if (!.Platform$OS.type == "windows") {
@@ -100,6 +98,7 @@ test_that("smart_download works", {
 
 
 test_that("cities works", {
+  skip_on_cran()
   cities_sqlite <- etl("cities")
   # fails on check() but not on test()?? issue #37
 #   expect_message(cities_sqlite %>% etl_create(), "Loading")
@@ -108,18 +107,29 @@ test_that("cities works", {
     "Deleting files")
 })
 
-test_that("MonetDBLite works", {
-  if (require(MonetDBLite)) {
-    # db <- MonetDBLite::src_monetdblite()
-    # cars_monet <- etl("mtcars", db = db)
-    # expect_message(
-    #   cars_monet %>%
-    #     etl_create()
-    # )
-    # tbl_cars <- cars_monet %>%
-    #   tbl("mtcars")
-    # expect_equal(nrow(tbl_cars %>% collect()), 32)
-    # expect_s3_class(cars_monet, "src_monetdb")
-    # expect_s3_class(tbl_cars, "tbl_monetdb")
+
+
+test_that("create ETL works", {
+  path <- file.path(tempdir(), "scorecard")
+  expect_output(create_etl_package(path, open = FALSE), "active project")
+})
+
+test_that("dbRunScript works", {
+  sql <- "SHOW TABLES; SELECT 1+1 as Two;"
+
+  if (require(RSQLite)) {
+     con <- dbConnect(RSQLite::SQLite())
+     expect_equal(0, sum(unlist(dbRunScript(con, "SELECT 1+1 as Two; VACUUM; ANALYZE;"))))
+     init_sqlite <- system.file("sql", "init.sqlite", package = "etl")
+     expect_equal(0, sum(unlist(dbRunScript(con, script = init_sqlite))))
+  }
+  if (require(RMySQL) && mysqlHasDefault()) {
+    db <- src_mysql_cnf()
+    expect_equal(-2, sum(unlist(dbRunScript(db$con, script = sql))))
+    init_mysql <- system.file("sql", "init.mysql", package = "etl")
+    expect_equal(0, sum(unlist(dbRunScript(db$con, script = init_mysql))))
+    expect_true("mtcars" %in% DBI::dbListTables(db$con))
+    dbDisconnect(db$con)
   }
 })
+

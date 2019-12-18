@@ -23,7 +23,7 @@
 #' \dontrun{
 #' if (require(RMySQL)) {
 #'  con <- dbConnect(RMySQL::MySQL(), default.file = path.expand("~/.my.cnf"),
-#'    group = "client",user = NULL, password = NULL, dbname = "mysql", host = "127.0.0.1")
+#'    group = "client", user = NULL, password = NULL, dbname = "mysql", host = "127.0.0.1")
 #'  dbRunScript(con, script = sql)
 #'  dbRunScript(con, script = sql2)
 #'  dbRunScript(con, script = sql3)
@@ -34,18 +34,23 @@
 
 dbRunScript <- function(conn, script, echo = FALSE, ...) {
   if (file.exists(script)) {
-    message(paste0("Running SQL script at ", script))
+    message(paste0("Initializing DB using SQL script ", basename(script)))
     sql <- readChar(script, file.info(script)$size, useBytes = TRUE)
   } else {
     sql <- script
   }
 
-  sql <- gsub("\n", " ", sql, fixed = TRUE)
-  sql <- unlist(strsplit(sql, ";"))
-
+  sql_lines <- unlist(strsplit(sql, "\n"))
   # strip out any blank lines -- these will produce an error
-  good <- sql[grepl("\\w+", sql)]
-  good <- DBI::SQL(good)
+  sql_lines <- sql_lines[grepl("[A-Za-z0-9);]+", sql_lines)]
+  # filter out comments
+  sql_lines <- sql_lines[!grepl("^--", sql_lines)]
+  sql_lines <- sql_lines[!grepl("^/\\*", sql_lines)]
+
+  sql_rebuild <- paste(sql_lines, collapse = " ")
+  sql_cmds <- unlist(strsplit(sql_rebuild, ";"))
+
+  good <- DBI::SQL(sql_cmds)
   if (echo) {
     print(good)
   }

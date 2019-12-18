@@ -13,7 +13,9 @@
 #'
 #' # But you can also specify your own schema if you want
 #' schema <- system.file("sql", "init.sqlite", package = "etl")
-#' etl_load(cars, schema)
+#' cars %>%
+#'   etl_init(schema) %>%
+#'   etl_load()
 
 etl_load <- function(obj, ...) UseMethod("etl_load")
 
@@ -22,7 +24,7 @@ etl_load <- function(obj, ...) UseMethod("etl_load")
 #' @export
 
 etl_load.default <- function(obj, ...) {
-  smart_upload(obj)
+  smart_upload(obj, ...)
   invisible(obj)
 }
 
@@ -78,7 +80,6 @@ smart_upload <- function(obj, src = NULL, tablenames = NULL, ...) {
 #' the schema you specify here is written in MySQL (and not PostgreSQL). Please
 #' note that SQL syntax is not, in general, completely portable. Use with caution, as this may
 #' clobber any existing data you have in an existing database.
-#' @inheritParams find_schema
 #' @export
 #' @examples
 #' cars <- etl("mtcars")
@@ -98,7 +99,6 @@ etl_init <- function(obj, script = NULL, schema_name = "init",
                      ext = NULL, ...) UseMethod("etl_init")
 
 #' @rdname etl_init
-#' @method etl_init default
 #' @export
 etl_init.default <- function(obj, script = NULL, schema_name = "init",
                              pkg = attr(obj, "pkg"), ext = NULL, ...) {

@@ -1,3 +1,5 @@
+globalVariables(c("Package", "Item"))
+
 #' @rdname etl_create
 #' @export
 
@@ -12,10 +14,10 @@ etl_extract <- function(obj, ...) UseMethod("etl_extract")
 etl_extract.default <- function(obj, ...) {
   pkg <- attr(obj, "pkg")
   data_sets <- utils::data(package = pkg)$results %>%
-    dplyr::as_data_frame() %>%
-    dplyr::mutate_(data_path = ~paste0(Package, "::", Item),
-                   file_path = ~file.path(attr(obj, "raw_dir"),
-                                          paste0(Item, ".csv")))
+    tibble::as_tibble() %>%
+    dplyr::mutate(data_path = paste0(Package, "::", Item),
+                  file_path = file.path(attr(obj, "raw_dir"),
+                                        paste0(Item, ".csv")))
 
   # load the data.frames into a list
   data_list <- lapply(data_sets$data_path, get_data)
@@ -100,7 +102,9 @@ smart_download <- function(obj, src, new_filenames = basename(src), clobber = FA
   }
   message(paste("Downloading", sum(missing), "new files. ",
                 sum(!missing), "untouched."))
-  mapply(downloader::download, src[missing], lcl[missing], ... = ...)
+  if (any(missing)) {
+    mapply(downloader::download, src[missing], lcl[missing], ... = ...)
+  }
 }
 
 
