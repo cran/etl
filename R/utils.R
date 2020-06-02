@@ -1,4 +1,6 @@
-if(getRversion() >= "2.15.1")  utils::globalVariables(".")
+if(getRversion() >= "2.15.1") {
+  utils::globalVariables(c(".", "year", "month"))
+}
 
 #' @import dplyr
 
@@ -29,7 +31,6 @@ verify_con <- function(x, dir = tempdir()) {
 #' @param months a numeric vector of months
 #' @param begin the earliest valid date, defaults to the UNIX epoch
 #' @param end the most recent valid date, defaults to today
-#' @importFrom lubridate ymd
 #' @details Often, a data source will \code{begin} and \code{end} at
 #' known points in time. At the same time, many data sources are divided
 #' into monthly archives. Given a set of \code{years} and \code{months},
@@ -65,15 +66,17 @@ valid_year_month <- function(years, months,
   begin <- as.Date(begin)
   end <- as.Date(end)
 
-  valid_months <- data.frame(expand.grid(years, months)) %>%
+  valid_months <- tibble::tibble(expand.grid(years, months)) %>%
     rename(year = Var1, month = Var2) %>%
-    mutate(month_begin = lubridate::ymd(paste(year, month,
-                                              "01", sep = "/"))) %>%
-    mutate(month_end = lubridate::ymd(
-      ifelse(month == 12, paste(year + 1, "01/01", sep = "/"),
-                          paste(year, month + 1, "01", sep = "/"))) - 1) %>%
-    filter(year > 0 & month >= 1 & month <= 12) %>%
-    filter(month_begin >= begin & month_begin <= end) %>%
+    mutate(
+      month_begin = lubridate::ymd(paste(year, month, "01", sep = "/")),
+      month_end = lubridate::ymd(
+        ifelse(month == 12, paste(year + 1, "01/01", sep = "/"),
+               paste(year, month + 1, "01", sep = "/"))) - 1) %>%
+    filter(
+      year > 0 & month >= 1 & month <= 12,
+      month_begin >= begin & month_begin <= end
+    ) %>%
     arrange(month_begin)
   return(valid_months)
 }
@@ -85,16 +88,15 @@ valid_year_month <- function(years, months,
 #' @param years a numeric vector of years
 #' @param months a numeric vector of months
 #' @return a character vector of \code{files} that match the \code{pattern}, \code{year}, and \code{month} arguments
-#' @importFrom lubridate year month
 #' @export
 #' @examples
 #' \dontrun{
 #' if (require(airlines)) {
-#'   airlines <- etl("airlines", dir = "~/dumps/airlines") %>%
+#'   airlines <- etl("airlines", dir = "~/Data/airlines") %>%
 #'     etl_extract(year = 1987)
 #'   summary(airlines)
 #'   match_files_by_year_months(list.files(attr(airlines, "raw_dir")),
-#'     pattern = "On_Time_On_Time_Performance_%Y_%m.zip"), year = 1987)
+#'     pattern = "On_Time_On_Time_Performance_%Y_%m.zip", year = 1987)
 #' }
 #' }
 
@@ -105,16 +107,18 @@ match_files_by_year_months <- function(files, pattern,
   if (length(files) < 1) {
     return(NULL)
   }
-  file_df <- data.frame(filename = files,
-                        file_date = extract_date_from_filename(files,
-                                                               pattern)) %>%
-    mutate(file_year = lubridate::year(file_date),
-           file_month = lubridate::month(file_date))
+  file_df <- tibble::tibble(
+    filename = files,
+    file_date = extract_date_from_filename(files, pattern)) %>%
+    mutate(
+      file_year = lubridate::year(file_date),
+      file_month = lubridate::month(file_date)
+    )
   valid <- valid_year_month(years, months)
   good <- file_df %>%
     left_join(valid, by = c("file_year" = "year", "file_month" = "month")) %>%
     filter(!is.na(month_begin))
-  return(as.character(good$filename))
+  return(fs::as_fs_path(good$filename))
 }
 
 #' @description Extracts a date from filenames
@@ -122,7 +126,6 @@ match_files_by_year_months <- function(files, pattern,
 #' @param pattern a regular expression to be passed to \code{\link[lubridate]{fast_strptime}}
 #' @param ... arguments passed to \code{\link[lubridate]{fast_strptime}}
 #' @return a vector of \code{\link{POSIXct}} dates matching the pattern
-#' @importFrom lubridate fast_strptime days
 #' @export
 #' @rdname match_files_by_year_months
 
@@ -140,7 +143,6 @@ extract_date_from_filename <- function(files, pattern, ...) {
 #' Wipe out all tables in a database
 #' @details Finds all tables within a database and removes them
 #' @inheritParams DBI::dbRemoveTable
-#' @importFrom DBI dbRemoveTable
 #' @export
 
 dbWipe <- function(conn, ...) {
@@ -203,7 +205,6 @@ src_mysql_cnf <- function(dbname = "test", groups = "rs-dbi", ...) {
 db_type <- function(obj, ...) UseMethod("db_type")
 
 #' @rdname db_type
-#' @method db_type src_dbi
 #' @export
 
 db_type.src_dbi <- function(obj, ...) {
@@ -211,8 +212,6 @@ db_type.src_dbi <- function(obj, ...) {
 }
 
 #' @rdname db_type
-#' @importFrom utils head
-#' @method db_type DBIConnection
 #' @export
 
 db_type.DBIConnection <- function(obj, ...) {
@@ -223,7 +222,6 @@ db_type.DBIConnection <- function(obj, ...) {
 }
 
 #' Create an ETL package skeleton
-#' @importFrom usethis create_package use_package
 #' @param ... arguments passed to \code{\link[usethis]{create_package}}
 #' @export
 #' @details Extends \code{\link[usethis]{create_package}} and places a template source file in

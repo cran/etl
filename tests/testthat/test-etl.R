@@ -59,17 +59,29 @@ test_that("mysql works", {
 
 
 test_that("valid_year_month works", {
-  expect_equal(
-    nrow(valid_year_month(years = 1999:2001, months = c(1:3, 7))), 12)
+  dates <- valid_year_month(years = 1999:2001, months = c(1:3, 7))
+  expect_is(dates, "tbl_df")
+  expect_equal(nrow(dates), 12)
 })
 
 test_that("extract_date_from_filename works", {
   test <- expand.grid(year = 1999:2001, month = c(1:6, 9)) %>%
-    mutate(filename = paste0("myfile_", year, "_", month, ".ext"))
+    mutate(filename = paste0("myfile_", year, "_", month, ".csv"))
   expect_is(
-    extract_date_from_filename(test$filename, pattern = "myfile_%Y_%m.ext"),
-    "Date")
+    extract_date_from_filename(test$filename, pattern = "myfile_%Y_%m.csv"),
+    "Date"
+  )
   expect_null(extract_date_from_filename(list.files("/cdrom"), pattern = "*"))
+
+  files <- fs::path(tempdir(), test$filename)
+  lapply(files, FUN = readr::write_csv, x = data.frame(var = "etl"))
+
+  res <- match_files_by_year_months(
+    files,
+    pattern = "myfile_%Y_%m.csv", year = 1999:2000
+  )
+  expect_is(res, "fs_path")
+  expect_length(res, 14)
 })
 
 test_that("etl works", {
@@ -111,7 +123,7 @@ test_that("cities works", {
 
 test_that("create ETL works", {
   path <- file.path(tempdir(), "scorecard")
-  expect_output(create_etl_package(path, open = FALSE), "active project")
+  expect_output(create_etl_package(path, open = FALSE), "Package:")
 })
 
 test_that("dbRunScript works", {

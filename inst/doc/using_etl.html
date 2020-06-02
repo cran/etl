@@ -1,19 +1,18 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <meta name="author" content="Ben Baumer" />
 
-<meta name="date" content="2019-12-18" />
+<meta name="date" content="2020-06-01" />
 
 <title>Using etl</title>
 
@@ -21,9 +20,9 @@
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css" data-origin="pandoc">
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; }
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode { white-space: pre; position: relative; }
 div.sourceCode { margin: 1em 0; }
@@ -33,14 +32,16 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 code.sourceCode { white-space: pre-wrap; }
-a.sourceLine { text-indent: -1em; padding-left: 1em; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
-pre.numberSource a.sourceLine
-  { position: relative; left: -4em; }
-pre.numberSource a.sourceLine::before
-  { content: attr(data-line-number);
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
     position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all; display: inline-block;
+    border: none; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -49,9 +50,9 @@ pre.numberSource a.sourceLine::before
   }
 pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
-  {  }
+  {   }
 @media screen {
-a.sourceLine::before { text-decoration: underline; }
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
@@ -118,9 +119,6 @@ padding-right: 2em;
 font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 font-size: 14px;
 line-height: 1.35;
-}
-#header {
-text-align: center;
 }
 #TOC {
 clear: both;
@@ -289,7 +287,8 @@ code > span.st { color: #d14; }
 code > span.co { color: #888888; font-style: italic; } 
 code > span.ot { color: #007020; } 
 code > span.al { color: #ff0000; font-weight: bold; } 
-code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
 </style>
 
 
@@ -304,7 +303,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 <h1 class="title toc-ignore">Using etl</h1>
 <h4 class="author">Ben Baumer</h4>
-<h4 class="date">2019-12-18</h4>
+<h4 class="date">2020-06-01</h4>
 
 
 
@@ -312,11 +311,11 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <div id="using-etl" class="section level2">
 <h2>Using <code>etl</code></h2>
 <p>Instantiate an <code>etl</code> object using a string that determines the class of the resulting object, and the package that provides access to that data. The trivial <code>mtcars</code> database is built into <code>etl</code>.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(etl)</a>
-<a class="sourceLine" id="cb1-2" data-line-number="2">cars &lt;-<span class="st"> </span><span class="kw">etl</span>(<span class="st">&quot;mtcars&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(etl)</span>
+<span id="cb1-2"><a href="#cb1-2"></a>cars &lt;-<span class="st"> </span><span class="kw">etl</span>(<span class="st">&quot;mtcars&quot;</span>)</span></code></pre></div>
 <pre><code>## No database was specified so I created one for you at:</code></pre>
-<pre><code>## /tmp/Rtmpj6DjNz/file7f8e71fab4a7.sqlite3</code></pre>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw">class</span>(cars)</a></code></pre></div>
+<pre><code>## /tmp/RtmpCrveYY/file52e2163267e8.sqlite3</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">class</span>(cars)</span></code></pre></div>
 <pre><code>## [1] &quot;etl_mtcars&quot;           &quot;etl&quot;                  &quot;src_SQLiteConnection&quot;
 ## [4] &quot;src_dbi&quot;              &quot;src_sql&quot;              &quot;src&quot;</code></pre>
 <p>Pay careful attention to where the SQLite database is stored. The default location is a temporary directory, but you will want to move this to a more secure location if you want this storage to be persistent. See <code>file.copy()</code> for examples on how to move a file.</p>
@@ -326,85 +325,83 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <blockquote>
 <p>Note: If you want to use a database other than a local RSQLite, you must create the <code>mtcars</code> database and have permission to write to it first!</p>
 </blockquote>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="co"># For PostgreSQL</span></a>
-<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="kw">library</span>(RPostgreSQL)</a>
-<a class="sourceLine" id="cb6-3" data-line-number="3">db &lt;-<span class="st"> </span><span class="kw">src_postgres</span>(<span class="dt">dbname =</span> <span class="st">&quot;mtcars&quot;</span>, <span class="dt">user =</span> <span class="st">&quot;postgres&quot;</span>, <span class="dt">host =</span> <span class="st">&quot;localhost&quot;</span>)</a>
-<a class="sourceLine" id="cb6-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb6-5" data-line-number="5"><span class="co"># Alternatively, for MySQL</span></a>
-<a class="sourceLine" id="cb6-6" data-line-number="6"><span class="kw">library</span>(RMySQL)</a>
-<a class="sourceLine" id="cb6-7" data-line-number="7">db &lt;-<span class="st"> </span><span class="kw">src_mysql</span>(<span class="dt">dbname =</span> <span class="st">&quot;mtcars&quot;</span>, <span class="dt">user =</span> <span class="st">&quot;r-user&quot;</span>, <span class="dt">password =</span> <span class="st">&quot;mypass&quot;</span>, <span class="dt">host =</span> <span class="st">&quot;localhost&quot;</span>)</a>
-<a class="sourceLine" id="cb6-8" data-line-number="8">cars &lt;-<span class="st"> </span><span class="kw">etl</span>(<span class="st">&quot;mtcars&quot;</span>, db)</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="co"># For PostgreSQL</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a><span class="kw">library</span>(RPostgreSQL)</span>
+<span id="cb6-3"><a href="#cb6-3"></a>db &lt;-<span class="st"> </span><span class="kw">src_postgres</span>(<span class="dt">dbname =</span> <span class="st">&quot;mtcars&quot;</span>, <span class="dt">user =</span> <span class="st">&quot;postgres&quot;</span>, <span class="dt">host =</span> <span class="st">&quot;localhost&quot;</span>)</span>
+<span id="cb6-4"><a href="#cb6-4"></a></span>
+<span id="cb6-5"><a href="#cb6-5"></a><span class="co"># Alternatively, for MySQL</span></span>
+<span id="cb6-6"><a href="#cb6-6"></a><span class="kw">library</span>(RMySQL)</span>
+<span id="cb6-7"><a href="#cb6-7"></a>db &lt;-<span class="st"> </span><span class="kw">src_mysql</span>(<span class="dt">dbname =</span> <span class="st">&quot;mtcars&quot;</span>, <span class="dt">user =</span> <span class="st">&quot;r-user&quot;</span>, <span class="dt">password =</span> <span class="st">&quot;mypass&quot;</span>, <span class="dt">host =</span> <span class="st">&quot;localhost&quot;</span>)</span>
+<span id="cb6-8"><a href="#cb6-8"></a>cars &lt;-<span class="st"> </span><span class="kw">etl</span>(<span class="st">&quot;mtcars&quot;</span>, db)</span></code></pre></div>
 <p>At the heart of <code>etl</code> are three functions: <code>etl_extract()</code>, <code>etl_transform()</code>, and <code>etl_load()</code>.</p>
 </div>
 <div id="extract" class="section level3">
 <h3>Extract</h3>
 <p>The first step is to acquire data from an online source.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">cars <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="st">  </span><span class="kw">etl_extract</span>()</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>cars <span class="op">%&gt;%</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a><span class="st">  </span><span class="kw">etl_extract</span>()</span></code></pre></div>
 <pre><code>## Extracting raw data...</code></pre>
 <p>This creates a local store of raw data.</p>
 </div>
 <div id="transform" class="section level3">
 <h3>Transform</h3>
 <p>These data may need to be transformed from their raw form to files suitable for importing into SQL (usually CSVs).</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1">cars <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb9-2" data-line-number="2"><span class="st">  </span><span class="kw">etl_transform</span>()</a></code></pre></div>
-<pre><code>## Transforming raw data...</code></pre>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>cars <span class="op">%&gt;%</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a><span class="st">  </span><span class="kw">etl_transform</span>()</span></code></pre></div>
 </div>
 <div id="load" class="section level3">
 <h3>Load</h3>
 <p>Populate the SQL database with the transformed data.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1">cars <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb11-2" data-line-number="2"><span class="st">  </span><span class="kw">etl_load</span>()</a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>cars <span class="op">%&gt;%</span></span>
+<span id="cb10-2"><a href="#cb10-2"></a><span class="st">  </span><span class="kw">etl_load</span>()</span></code></pre></div>
 <pre><code>## Loading 12 file(s) into the database...</code></pre>
 </div>
 <div id="do-it-all-at-once" class="section level3">
 <h3>Do it all at once</h3>
 <p>To populate the whole database from scratch, use <code>etl_create</code>.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1">cars <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb13-2" data-line-number="2"><span class="st">  </span><span class="kw">etl_create</span>()</a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>cars <span class="op">%&gt;%</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a><span class="st">  </span><span class="kw">etl_create</span>()</span></code></pre></div>
 <pre><code>## Initializing DB using SQL script init.sqlite</code></pre>
 <pre><code>## Extracting raw data...</code></pre>
-<pre><code>## Transforming raw data...</code></pre>
 <pre><code>## Loading 12 file(s) into the database...</code></pre>
 <p>You can also update an existing database without re-initializing, but watch out for primary key collisions.</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1">cars <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb18-2" data-line-number="2"><span class="st">  </span><span class="kw">etl_update</span>()</a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>cars <span class="op">%&gt;%</span></span>
+<span id="cb16-2"><a href="#cb16-2"></a><span class="st">  </span><span class="kw">etl_update</span>()</span></code></pre></div>
 </div>
 <div id="step-by-step" class="section level3">
 <h3>Step-by-step</h3>
 <p>Under the hood, there are three functions that <code>etl_update</code> chains together:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1"><span class="kw">getS3method</span>(<span class="st">&quot;etl_update&quot;</span>, <span class="st">&quot;default&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="kw">getS3method</span>(<span class="st">&quot;etl_update&quot;</span>, <span class="st">&quot;default&quot;</span>)</span></code></pre></div>
 <pre><code>## function (obj, ...) 
 ## {
 ##     obj &lt;- obj %&gt;% etl_extract(...) %&gt;% etl_transform(...) %&gt;% 
 ##         etl_load(...)
 ##     invisible(obj)
 ## }
-## &lt;bytecode: 0x55a34e2122c8&gt;
+## &lt;bytecode: 0x55bf4502f260&gt;
 ## &lt;environment: namespace:etl&gt;</code></pre>
 <p><code>etl_create</code> is simply a call to <code>etl_update</code> that forces the SQL database to be written from scratch.</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1"><span class="kw">getS3method</span>(<span class="st">&quot;etl_create&quot;</span>, <span class="st">&quot;default&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a><span class="kw">getS3method</span>(<span class="st">&quot;etl_create&quot;</span>, <span class="st">&quot;default&quot;</span>)</span></code></pre></div>
 <pre><code>## function (obj, ...) 
 ## {
 ##     obj &lt;- obj %&gt;% etl_init(...) %&gt;% etl_update(...) %&gt;% etl_cleanup(...)
 ##     invisible(obj)
 ## }
-## &lt;bytecode: 0x55a350c3df90&gt;
+## &lt;bytecode: 0x55bf425cf968&gt;
 ## &lt;environment: namespace:etl&gt;</code></pre>
 </div>
 <div id="do-your-analysis" class="section level3">
 <h3>Do Your Analysis</h3>
 <p>Now that your database is populated, you can work with it as a <code>src</code> data table just like any other <code>dplyr</code> source.</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1">cars <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb23-2" data-line-number="2"><span class="st">  </span><span class="kw">tbl</span>(<span class="st">&quot;mtcars&quot;</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb23-3" data-line-number="3"><span class="st">  </span><span class="kw">group_by</span>(cyl) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb23-4" data-line-number="4"><span class="st">  </span><span class="kw">summarise</span>(<span class="dt">N =</span> <span class="kw">n</span>(), <span class="dt">mean_mpg =</span> <span class="kw">mean</span>(mpg))</a></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>cars <span class="op">%&gt;%</span></span>
+<span id="cb21-2"><a href="#cb21-2"></a><span class="st">  </span><span class="kw">tbl</span>(<span class="st">&quot;mtcars&quot;</span>) <span class="op">%&gt;%</span></span>
+<span id="cb21-3"><a href="#cb21-3"></a><span class="st">  </span><span class="kw">group_by</span>(cyl) <span class="op">%&gt;%</span></span>
+<span id="cb21-4"><a href="#cb21-4"></a><span class="st">  </span><span class="kw">summarise</span>(<span class="dt">N =</span> <span class="kw">n</span>(), <span class="dt">mean_mpg =</span> <span class="kw">mean</span>(mpg))</span></code></pre></div>
 <pre><code>## Warning: Missing values are always removed in SQL.
 ## Use `mean(x, na.rm = TRUE)` to silence this warning
 ## This warning is displayed only once per session.</code></pre>
 <pre><code>## # Source:   lazy query [?? x 3]
-## # Database: sqlite 3.29.0 [/tmp/Rtmpj6DjNz/file7f8e71fab4a7.sqlite3]
+## # Database: sqlite 3.30.1 [/tmp/RtmpCrveYY/file52e2163267e8.sqlite3]
 ##     cyl     N mean_mpg
 ##   &lt;int&gt; &lt;int&gt;    &lt;dbl&gt;
 ## 1     4    11     26.7
@@ -417,17 +414,17 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <div id="create-your-own-etl-packages" class="section level3">
 <h3>Create your own ETL packages</h3>
 <p>Suppose you want to create your own ETL package called <code>pkgname</code>. All you have to do is write a package that requires <code>etl</code>, and then you have to write <strong>one S3 methods</strong>:</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" data-line-number="1"><span class="kw">etl_extract.etl_pkgname</span>()</a></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a><span class="kw">etl_extract.etl_pkgname</span>()</span></code></pre></div>
 <p>You may also wish to write</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" data-line-number="1"><span class="kw">etl_transform.etl_pkgname</span>()</a>
-<a class="sourceLine" id="cb27-2" data-line-number="2"><span class="kw">etl_load.etl_pkgname</span>()</a></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a><span class="kw">etl_transform.etl_pkgname</span>()</span>
+<span id="cb25-2"><a href="#cb25-2"></a><span class="kw">etl_load.etl_pkgname</span>()</span></code></pre></div>
 <p>All of these functions must take and return an object of class <code>etl_pkgname</code> that inherits from <code>etl</code>. Please see the “<a href="extending_etl.html">Extending etl</a>” vignette for more information.</p>
 </div>
 <div id="use-other-etl-packages" class="section level3">
 <h3>Use other ETL packages</h3>
 <p>Packages that use the <code>etl</code> framework are available on CRAN and/or GitHub:</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" data-line-number="1">tools<span class="op">::</span><span class="kw">dependsOnPkgs</span>(<span class="st">&quot;etl&quot;</span>)</a></code></pre></div>
-<pre><code>## [1] &quot;airlines&quot;  &quot;fec&quot;       &quot;imdb&quot;      &quot;macleish&quot;  &quot;retro&quot;     &quot;statcastr&quot;</code></pre>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>tools<span class="op">::</span><span class="kw">dependsOnPkgs</span>(<span class="st">&quot;etl&quot;</span>)</span></code></pre></div>
+<pre><code>## [1] &quot;airlines&quot;  &quot;macleish&quot;  &quot;retro&quot;     &quot;statcastr&quot;</code></pre>
 </div>
 </div>
 

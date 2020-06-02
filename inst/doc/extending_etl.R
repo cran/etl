@@ -8,17 +8,13 @@ ggplots <- etl("ggplot2") %>%
 src_tbls(ggplots)
 
 ## ---- error=TRUE--------------------------------------------------------------
-if (require(macleish)) {
-  macleish:::etl_extract.etl_macleish %>% args()
-  macleish:::etl_transform.etl_macleish %>% args()
-  macleish:::etl_load.etl_macleish %>% args()
-}
+etl_extract.etl_cities %>% args()
+etl_transform.etl_cities %>% args()
+etl_load.etl_cities %>% args()
 
 ## -----------------------------------------------------------------------------
-if (require(macleish)) {
-  macleish <- etl("macleish")
-  str(macleish)
-}
+cities <- etl("cities")
+str(cities)
 
 ## -----------------------------------------------------------------------------
 citation("etl")

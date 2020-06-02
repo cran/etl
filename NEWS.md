@@ -1,3 +1,12 @@
+# etl 0.3.9 (2020-06-01)
+
+* Fixed issue with new version of `usethis`; #59
+* Cleaned up NAMESPACE
+* Removed `macleish` dependency
+* Removed `airlines` mentions in vignettes
+
+### MINOR IMPROVEMENTS
+
 # etl 0.3.8 (2019-12-18)
 
 ### MINOR IMPROVEMENTS
