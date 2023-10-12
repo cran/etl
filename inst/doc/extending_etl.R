@@ -1,4 +1,4 @@
-## ---- error=TRUE, message=FALSE-----------------------------------------------
+## ----error=TRUE, message=FALSE------------------------------------------------
 library(etl)
 foo <- etl("foo")
 
@@ -7,7 +7,7 @@ ggplots <- etl("ggplot2") %>%
   etl_update()
 src_tbls(ggplots)
 
-## ---- error=TRUE--------------------------------------------------------------
+## ----error=TRUE---------------------------------------------------------------
 etl_extract.etl_cities %>% args()
 etl_transform.etl_cities %>% args()
 etl_load.etl_cities %>% args()
