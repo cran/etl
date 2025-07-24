@@ -18,18 +18,18 @@ extract_date_from_filename(files, pattern, ...)
 \arguments{
 \item{files}{a character vector of filenames}
 
-\item{pattern}{a regular expression to be passed to \code{\link[lubridate]{fast_strptime}}}
+\item{pattern}{a regular expression to be passed to \code{\link[lubridate:parse_date_time]{lubridate::fast_strptime()}}}
 
 \item{years}{a numeric vector of years}
 
 \item{months}{a numeric vector of months}
 
-\item{...}{arguments passed to \code{\link[lubridate]{fast_strptime}}}
+\item{...}{arguments passed to \code{\link[lubridate:parse_date_time]{lubridate::fast_strptime()}}}
 }
 \value{
 a character vector of \code{files} that match the \code{pattern}, \code{year}, and \code{month} arguments
 
-a vector of \code{\link{POSIXct}} dates matching the pattern
+a vector of \link[base:DateTimeClasses]{base::POSIXct} dates matching the pattern
 }
 \description{
 Match year and month vectors to filenames
@@ -39,7 +39,7 @@ Extracts a date from filenames
 \examples{
 \dontrun{
 if (require(airlines)) {
-  airlines <- etl("airlines", dir = "~/Data/airlines") \%>\%
+  airlines <- etl("airlines", dir = "~/Data/airlines") |>
     etl_extract(year = 1987)
   summary(airlines)
   match_files_by_year_months(list.files(attr(airlines, "raw_dir")),

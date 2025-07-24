@@ -32,18 +32,18 @@ verify_con <- function(x, dir = tempdir()) {
 #' @param months a numeric vector of months
 #' @param begin the earliest valid date, defaults to the UNIX epoch
 #' @param end the most recent valid date, defaults to today
-#' @details Often, a data source will \code{begin} and \code{end} at
+#' @details Often, a data source will `begin` and `end` at
 #' known points in time. At the same time, many data sources are divided
-#' into monthly archives. Given a set of \code{years} and \code{months},
+#' into monthly archives. Given a set of `years` and `months`,
 #' any combination of which should be considered valid, this function will
-#' return a \code{\link{data.frame}} in which each row is one of those
-#' valid year-month pairs. Further, if the optional \code{begin} and
-#' \code{end} arguments are specified, the rows will be filter to lie
+#' return a [data.frame] in which each row is one of those
+#' valid year-month pairs. Further, if the optional `begin` and
+#' `end` arguments are specified, the rows will be filter to lie
 #' within that time interval. Furthermore, the first and last day of
 #' each month are computed.
-#' @return a \code{\link{data.frame}} with four variables: \code{year},
-#' \code{month}, \code{month_begin} (the first day of the month), and
-#' \code{month_end} (the last day of the month).
+#' @return a [data.frame] with four variables: `year`,
+#' `month`, `month_begin` (the first day of the month), and
+#' `month_end` (the last day of the month).
 #' @export
 #' @examples
 #'
@@ -67,17 +67,17 @@ valid_year_month <- function(years, months,
   begin <- as.Date(begin)
   end <- as.Date(end)
 
-  valid_months <- tibble::tibble(expand.grid(years, months)) %>%
-    rename(year = Var1, month = Var2) %>%
+  valid_months <- tibble::tibble(expand.grid(years, months)) |>
+    rename(year = Var1, month = Var2) |>
     mutate(
       month_begin = lubridate::ymd(paste(year, month, "01", sep = "/")),
       month_end = lubridate::ymd(
         ifelse(month == 12, paste(year + 1, "01/01", sep = "/"),
-               paste(year, month + 1, "01", sep = "/"))) - 1) %>%
+               paste(year, month + 1, "01", sep = "/"))) - 1) |>
     filter(
       year > 0 & month >= 1 & month <= 12,
       month_begin >= begin & month_begin <= end
-    ) %>%
+    ) |>
     arrange(month_begin)
   return(valid_months)
 }
@@ -88,12 +88,12 @@ valid_year_month <- function(years, months,
 #' @description Match year and month vectors to filenames
 #' @param years a numeric vector of years
 #' @param months a numeric vector of months
-#' @return a character vector of \code{files} that match the \code{pattern}, \code{year}, and \code{month} arguments
+#' @return a character vector of `files` that match the `pattern`, `year`, and `month` arguments
 #' @export
 #' @examples
 #' \dontrun{
 #' if (require(airlines)) {
-#'   airlines <- etl("airlines", dir = "~/Data/airlines") %>%
+#'   airlines <- etl("airlines", dir = "~/Data/airlines") |>
 #'     etl_extract(year = 1987)
 #'   summary(airlines)
 #'   match_files_by_year_months(list.files(attr(airlines, "raw_dir")),
@@ -110,23 +110,23 @@ match_files_by_year_months <- function(files, pattern,
   }
   file_df <- tibble::tibble(
     filename = files,
-    file_date = extract_date_from_filename(files, pattern)) %>%
+    file_date = extract_date_from_filename(files, pattern)) |>
     mutate(
       file_year = lubridate::year(file_date),
       file_month = lubridate::month(file_date)
     )
   valid <- valid_year_month(years, months)
-  good <- file_df %>%
-    left_join(valid, by = c("file_year" = "year", "file_month" = "month")) %>%
+  good <- file_df |>
+    left_join(valid, by = c("file_year" = "year", "file_month" = "month")) |>
     filter(!is.na(month_begin))
   return(fs::as_fs_path(good$filename))
 }
 
 #' @description Extracts a date from filenames
 #' @param files a character vector of filenames
-#' @param pattern a regular expression to be passed to \code{\link[lubridate]{fast_strptime}}
-#' @param ... arguments passed to \code{\link[lubridate]{fast_strptime}}
-#' @return a vector of \code{\link{POSIXct}} dates matching the pattern
+#' @param pattern a regular expression to be passed to [lubridate::fast_strptime()]
+#' @param ... arguments passed to [lubridate::fast_strptime()]
+#' @return a vector of [base::POSIXct] dates matching the pattern
 #' @export
 #' @rdname match_files_by_year_months
 
@@ -134,16 +134,17 @@ extract_date_from_filename <- function(files, pattern, ...) {
   if (length(files) < 1) {
     return(NULL)
   }
-  files %>%
-    basename() %>%
-    lubridate::fast_strptime(format = pattern, ...) %>%
+  files |>
+    basename() |>
+    lubridate::fast_strptime(format = pattern, ...) |>
     # why does it always return the previous day?
     as.Date() + lubridate::days(1)
 }
 
 #' Wipe out all tables in a database
 #' @details Finds all tables within a database and removes them
-#' @inheritParams DBI::dbRemoveTable
+#' @param conn a [DBI::DBIConnection-class] object
+#' @param ... arguments passed to [DBI::dbRemoveTable()]
 #' @export
 
 dbWipe <- function(conn, ...) {
@@ -155,14 +156,14 @@ dbWipe <- function(conn, ...) {
 
 #' Connect to local MySQL Server using ~/.my.cnf
 #' @param dbname name of the local database you wish to connect to. Default is
-#' \code{test}, as in \code{\link[RMySQL]{mysqlHasDefault}}.
-#' @param groups section of \code{~/.my.cnf} file. Default is \code{rs-dbi} as in
-#' \code{\link[RMySQL]{mysqlHasDefault}}
-#' @param ... arguments passed to \code{\link[dplyr]{src_mysql}}
+#' `test`, as in [RMariaDB::mariadbHasDefault()].
+#' @param groups section of `~/.my.cnf` file. Default is `rs-dbi` as in
+#' [RMariaDB::mariadbHasDefault()]
+#' @param ... arguments passed to [dplyr::src_mysql()]
 #' @export
-#' @seealso \code{\link[dplyr]{src_mysql}}, \code{\link[RMySQL]{mysqlHasDefault}}
+#' @seealso [dplyr::src_mysql()], [RMariaDB::mariadbHasDefault()]
 #' @examples
-#' if (require(RMySQL) && mysqlHasDefault()) {
+#' if (require(RMariaDB) && mariadbHasDefault()) {
 #'   # connect to test database using rs-dbi
 #'   db <- src_mysql_cnf()
 #'   class(db)
@@ -189,11 +190,11 @@ src_mysql_cnf <- function(dbname = "test", groups = "rs-dbi", ...) {
 }
 
 #' Return the database type for an ETL or DBI connection
-#' @param obj and \code{\link{etl}} or \code{\link[DBI]{DBIConnection-class}} object
+#' @param obj and [etl] or [DBI::DBIConnection-class] object
 #' @param ... currently ignored
 #' @export
 #' @examples
-#' if (require(RMySQL) && mysqlHasDefault()) {
+#' if (require(RMariaDB) && mariadbHasDefault()) {
 #'   # connect to test database using rs-dbi
 #'   db <- src_mysql_cnf()
 #'   class(db)
@@ -216,22 +217,22 @@ db_type.src_dbi <- function(obj, ...) {
 #' @export
 
 db_type.DBIConnection <- function(obj, ...) {
-  class(obj) %>%
-    gsub(pattern = "Connection", replacement = "", x = .) %>%
-    tolower() %>%
+  class(obj) |>
+    gsub(pattern = "Connection", replacement = "", x = _) |>
+    tolower() |>
     utils::head(1)
 }
 
 #' Create an ETL package skeleton
-#' @param ... arguments passed to \code{\link[usethis]{create_package}}
+#' @param ... arguments passed to [usethis::create_package()]
 #' @export
-#' @details Extends \code{\link[usethis]{create_package}} and places a template source file in
-#' the R subdirectory of the new package. The file has a working stub of \code{etl_extract}.
+#' @details Extends [usethis::create_package()] and places a template source file in
+#' the R subdirectory of the new package. The file has a working stub of [etl_extract()].
 #' The new package can be built immediately and run.
 #'
-#' New S3 methods for \code{\link{etl_transform}} and \code{\link{etl_load}} can be added if
+#' New S3 methods for [etl_transform()] and [etl_load()] can be added if
 #' necessary, but the default methods may suffice.
-#' @seealso \code{\link{etl_extract}}, \code{\link{etl_transform}}, \code{\link{etl_load}}
+#' @seealso [etl_extract()], [etl_transform()], [etl_load()]
 #' @examples
 #' \dontrun{
 #' path <- file.path(tempdir(), "scorecard")
@@ -248,8 +249,8 @@ create_etl_package <- function(...) {
   dest <- file.path(path, "R", "etl.R")
   if (file.copy(src, dest)) {
     message("* Creating R/etl.R template source file...")
-    readLines(dest) %>%
-      gsub("foo", pkg, x = .) %>%
+    readLines(dest) |>
+      gsub("foo", pkg, x = _) |>
       writeLines(con = dest)
   }
 #  usethis::use_package("etl", "Depends")

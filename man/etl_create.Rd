@@ -56,7 +56,7 @@ etl_transform(obj, ...)
 \method{etl_transform}{etl_cities}(obj, ...)
 }
 \arguments{
-\item{obj}{an \code{\link{etl}} object}
+\item{obj}{an \link{etl} object}
 
 \item{...}{arguments passed to methods}
 
@@ -68,7 +68,7 @@ etl_transform(obj, ...)
 this matches filenames ending in \code{.csv} and \code{.zip}.}
 }
 \value{
-Each one of these functions returns an \code{\link{etl}} object, invisibly.
+Each one of these functions returns an \link{etl} object, invisibly.
 }
 \description{
 These generic functions provide a systematic approach
@@ -82,26 +82,26 @@ into a SQL database server.
 
 There are five primary functions:
 \describe{
- \item{\code{\link{etl_init}}}{Initialize the database schema.}
- \item{etl_extract}{Download data from the Internet and store it locally in
- its raw form.}
- \item{etl_transform}{Manipulate the raw data such that it can be loaded
- into a database table. Usually, this means converting the raw data to
- (a series of) CSV files, which are also stored locally.}
- \item{etl_load}{Load the transformed data into the database.}
- \item{etl_cleanup}{Perform housekeeping, such as deleting unnecessary
- raw data files.}
+\item{\code{\link[=etl_init]{etl_init()}}}{Initialize the database schema.}
+\item{\code{\link[=etl_extract]{etl_extract()}}}{Download data from the Internet and store it locally in
+its raw form.}
+\item{\code{\link[=etl_transform]{etl_transform()}}}{Manipulate the raw data such that it can be loaded
+into a database table. Usually, this means converting the raw data to
+(a series of) CSV files, which are also stored locally.}
+\item{\code{\link[=etl_load]{etl_load()}}}{Load the transformed data into the database.}
+\item{\code{\link[=etl_cleanup]{etl_cleanup()}}}{Perform housekeeping, such as deleting unnecessary
+raw data files.}
 }
 
 Additionally, two convenience functions chain these operations together:
 \describe{
- \item{etl_create}{Run all five functions in succession.
- This is useful when you want
- to create the database from scratch.}
- \item{etl_update}{Run the \code{etl_extract}-\code{etl_transform}-\code{etl_load} functions
- in succession.
- This is useful
- when the database already exists, but you want to insert some new data. }
+\item{\code{\link[=etl_create]{etl_create()}}}{Run all five functions in succession.
+This is useful when you want
+to create the database from scratch.}
+\item{\code{\link[=etl_update]{etl_update()}}}{Run the \code{\link[=etl_extract]{etl_extract()}}-\code{\link[=etl_transform]{etl_transform()}}-\code{\link[=etl_load]{etl_load()}} functions
+in succession.
+This is useful
+when the database already exists, but you want to insert some new data. }
 }
 }
 \examples{
@@ -111,27 +111,27 @@ if (require(RPostgreSQL)) {
   db <- src_postgres(dbname = "mtcars", user = "postgres", host = "localhost")
   cars <- etl("mtcars", db)
 }
-if (require(RMySQL) && mysqlHasDefault()) {
+if (require(RMariaDB) && mariadbHasDefault()) {
   db <- src_mysql(dbname = "mtcars", user = "r-user",
                   host = "localhost", password = "mypass")
   cars <- etl("mtcars", db)
 }
 }
 cars <- etl("mtcars")
-cars \%>\%
- etl_extract() \%>\%
- etl_transform() \%>\%
- etl_load() \%>\%
+cars |>
+ etl_extract() |>
+ etl_transform() |>
+ etl_load() |>
  etl_cleanup()
 cars
 
-cars \%>\%
- tbl(from = "mtcars") \%>\%
- group_by(cyl) \%>\%
+cars |>
+ tbl(from = "mtcars") |>
+ group_by(cyl) |>
  summarise(N = n(), mean_mpg = mean(mpg))
 
  # do it all in one step, and peek at the SQL creation script
- cars \%>\%
+ cars |>
    etl_create(echo = TRUE)
  # specify a directory for the data
  \dontrun{
@@ -140,9 +140,9 @@ cars \%>\%
  }
 cars <- etl("mtcars")
 # Do it step-by-step
-cars \%>\%
-  etl_extract() \%>\%
-  etl_transform() \%>\%
+cars |>
+  etl_extract() |>
+  etl_transform() |>
   etl_load()
 
 # Note the somewhat imprecise data types for the columns. These are the default.
@@ -150,10 +150,10 @@ tbl(cars, "mtcars")
 
 # But you can also specify your own schema if you want
 schema <- system.file("sql", "init.sqlite", package = "etl")
-cars \%>\%
-  etl_init(schema) \%>\%
+cars |>
+  etl_init(schema) |>
   etl_load()
 }
 \seealso{
-\code{\link{etl}}, \code{\link{etl_init}}
+\link{etl}, \code{\link[=etl_init]{etl_init()}}
 }

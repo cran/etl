@@ -4,34 +4,34 @@ cars <- etl("mtcars")
 class(cars)
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  # For PostgreSQL
-#  library(RPostgreSQL)
-#  db <- src_postgres(dbname = "mtcars", user = "postgres", host = "localhost")
-#  
-#  # Alternatively, for MySQL
-#  library(RMySQL)
-#  db <- src_mysql(dbname = "mtcars", user = "r-user", password = "mypass", host = "localhost")
-#  cars <- etl("mtcars", db)
+# # For PostgreSQL
+# library(RPostgreSQL)
+# db <- src_postgres(dbname = "mtcars", user = "postgres", host = "localhost")
+# 
+# # Alternatively, for MySQL
+# library(RMariaDB)
+# db <- src_mysql(dbname = "mtcars", user = "r-user", password = "mypass", host = "localhost")
+# cars <- etl("mtcars", db)
 
 ## -----------------------------------------------------------------------------
-cars %>%
+cars |>
   etl_extract()
 
 ## -----------------------------------------------------------------------------
-cars %>%
+cars |>
   etl_transform()
 
 ## -----------------------------------------------------------------------------
-cars %>%
+cars |>
   etl_load()
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  cars %>%
-#    etl_create()
+# cars |>
+#   etl_create()
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  cars %>%
-#    etl_update()
+# cars |>
+#   etl_update()
 
 ## -----------------------------------------------------------------------------
 getS3method("etl_update", "default")
@@ -40,17 +40,17 @@ getS3method("etl_update", "default")
 getS3method("etl_create", "default")
 
 ## -----------------------------------------------------------------------------
-cars %>%
-  tbl("mtcars") %>%
-  group_by(cyl) %>%
+cars |>
+  tbl("mtcars") |>
+  group_by(cyl) |>
   summarise(N = n(), mean_mpg = mean(mpg))
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  etl_extract.etl_pkgname()
+# etl_extract.etl_pkgname()
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  etl_transform.etl_pkgname()
-#  etl_load.etl_pkgname()
+# etl_transform.etl_pkgname()
+# etl_load.etl_pkgname()
 
 ## -----------------------------------------------------------------------------
 tools::dependsOnPkgs("etl")

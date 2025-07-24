@@ -8,18 +8,18 @@ src_mysql_cnf(dbname = "test", groups = "rs-dbi", ...)
 }
 \arguments{
 \item{dbname}{name of the local database you wish to connect to. Default is
-\code{test}, as in \code{\link[RMySQL]{mysqlHasDefault}}.}
+\code{test}, as in \code{\link[RMariaDB:mariadbHasDefault]{RMariaDB::mariadbHasDefault()}}.}
 
-\item{groups}{section of \code{~/.my.cnf} file. Default is \code{rs-dbi} as in
-\code{\link[RMySQL]{mysqlHasDefault}}}
+\item{groups}{section of \verb{~/.my.cnf} file. Default is \code{rs-dbi} as in
+\code{\link[RMariaDB:mariadbHasDefault]{RMariaDB::mariadbHasDefault()}}}
 
-\item{...}{arguments passed to \code{\link[dplyr]{src_mysql}}}
+\item{...}{arguments passed to \code{\link[dplyr:src_dbi]{dplyr::src_mysql()}}}
 }
 \description{
 Connect to local MySQL Server using ~/.my.cnf
 }
 \examples{
-if (require(RMySQL) && mysqlHasDefault()) {
+if (require(RMariaDB) && mariadbHasDefault()) {
   # connect to test database using rs-dbi
   db <- src_mysql_cnf()
   class(db)
@@ -29,5 +29,5 @@ if (require(RMySQL) && mysqlHasDefault()) {
 }
 }
 \seealso{
-\code{\link[dplyr]{src_mysql}}, \code{\link[RMySQL]{mysqlHasDefault}}
+\code{\link[dplyr:src_dbi]{dplyr::src_mysql()}}, \code{\link[RMariaDB:mariadbHasDefault]{RMariaDB::mariadbHasDefault()}}
 }

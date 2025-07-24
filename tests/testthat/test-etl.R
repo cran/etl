@@ -6,48 +6,50 @@ test_that("sqlite works", {
   expect_true(file.exists(find_schema(cars_sqlite)))
   expect_message(find_schema(cars_sqlite, "my_crazy_schema", "etl"))
   expect_output(summary(cars_sqlite), "files")
-  expect_message(cars_sqlite %>% etl_create(), "Loading")
-  expect_message(cars_sqlite %>% etl_init(), "SQL script")
+  expect_message(cars_sqlite |> etl_create(), "Loading")
+  expect_message(cars_sqlite |> etl_init(), "SQL script")
   expect_message(
-    cars_sqlite %>% etl_cleanup(delete_raw = TRUE, delete_load = TRUE),
+    cars_sqlite |> etl_cleanup(delete_raw = TRUE, delete_load = TRUE),
     "Deleting files")
+  DBI::dbDisconnect(cars_sqlite$con)
 })
 
 test_that("default works", {
   dplyr_sqlite <- etl("dplyr")
   expect_s3_class(dplyr_sqlite, c("etl_dplyr", "etl", "src_SQLiteConnection", "src_dbi", "src_sql"))
   expect_output(summary(dplyr_sqlite), "files")
-  expect_message(dplyr_sqlite %>% etl_update(), "Loading")
+  expect_message(dplyr_sqlite |> etl_update(), "Loading")
   expect_message(
-    dplyr_sqlite %>% etl_cleanup(delete_raw = TRUE, delete_load = TRUE),
+    dplyr_sqlite |> etl_cleanup(delete_raw = TRUE, delete_load = TRUE),
     "Deleting files")
+  DBI::dbDisconnect(dplyr_sqlite$con)
 })
 
 
 test_that("dplyr works", {
-  expect_message(cars <- etl("mtcars") %>%
+  expect_message(cars <- etl("mtcars") |>
     etl_create(), regexp = "Loading")
   expect_gt(length(src_tbls(cars)), 0)
-  tbl_cars <- cars %>%
+  tbl_cars <- cars |>
      tbl("mtcars")
   expect_s3_class(tbl_cars, "tbl_dbi")
   expect_s3_class(tbl_cars, "tbl_sql")
-  res <- tbl_cars %>%
+  res <- tbl_cars |>
     collect()
   expect_equal(nrow(res), nrow(mtcars))
   # double up the data
   expect_message(
-    cars %>%
+    cars |>
       etl_update(), regexp = "Loading")
-  res2 <- tbl_cars %>%
+  res2 <- tbl_cars |>
     collect()
   expect_equal(nrow(res2), 2 * nrow(mtcars))
-#  dbDisconnect(cars$con)
+  DBI::dbDisconnect(cars$con)
 })
 
 
-test_that("mysql works", {
-  if (require(RMySQL) && mysqlHasDefault()) {
+test_that("MariaDB works", {
+  if (require(RMariaDB) && mariadbHasDefault()) {
     db <- src_mysql_cnf()
     expect_s3_class(db, "src_dbi")
     cars_mysql <- etl("mtcars", db = db)
@@ -67,7 +69,7 @@ test_that("valid_year_month works", {
 })
 
 test_that("extract_date_from_filename works", {
-  test <- expand.grid(year = 1999:2001, month = c(1:6, 9)) %>%
+  test <- expand.grid(year = 1999:2001, month = c(1:6, 9)) |>
     mutate(filename = paste0("myfile_", year, "_", month, ".csv"))
   expect_is(
     extract_date_from_filename(test$filename, pattern = "myfile_%Y_%m.csv"),
@@ -93,6 +95,7 @@ test_that("etl works", {
   cars <- etl("mtcars")
   expect_true(is.etl(cars))
   expect_output(print(cars), "sqlite")
+  DBI::dbDisconnect(cars$con)
 })
 
 test_that("smart_download works", {
@@ -108,6 +111,7 @@ test_that("smart_download works", {
   expect_length(smart_download(cars, src = urls), 0)
   expect_message(etl_cleanup(cars, pattern = ".", delete_raw = TRUE, delete_load = TRUE), "Deleting")
   #  }
+  DBI::dbDisconnect(cars$con)
 })
 
 
@@ -115,10 +119,11 @@ test_that("cities works", {
   skip_on_cran()
   cities_sqlite <- etl("cities")
   # fails on check() but not on test()?? issue #37
-#   expect_message(cities_sqlite %>% etl_create(), "Loading")
+#   expect_message(cities_sqlite |> etl_create(), "Loading")
   expect_message(
-    cities_sqlite %>% etl_cleanup(delete_raw = TRUE, delete_load = TRUE),
+    cities_sqlite |> etl_cleanup(delete_raw = TRUE, delete_load = TRUE),
     "Deleting files")
+  DBI::dbDisconnect(cities_sqlite$con)
 })
 
 
@@ -138,7 +143,7 @@ test_that("dbRunScript works", {
      expect_equal(0, sum(unlist(dbRunScript(con, script = init_sqlite))))
      dbDisconnect(con)
   }
-  if (require(RMySQL) && mysqlHasDefault()) {
+  if (require(RMariaDB) && mariadbHasDefault()) {
     db <- src_mysql_cnf()
     expect_equal(-2, sum(unlist(dbRunScript(db$con, script = sql))))
     init_mysql <- system.file("sql", "init.mysql", package = "etl")

@@ -13,7 +13,7 @@ db_type(obj, ...)
 \method{db_type}{DBIConnection}(obj, ...)
 }
 \arguments{
-\item{obj}{and \code{\link{etl}} or \code{\link[DBI]{DBIConnection-class}} object}
+\item{obj}{and \link{etl} or \link[DBI:DBIConnection-class]{DBI::DBIConnection} object}
 
 \item{...}{currently ignored}
 }
@@ -21,7 +21,7 @@ db_type(obj, ...)
 Return the database type for an ETL or DBI connection
 }
 \examples{
-if (require(RMySQL) && mysqlHasDefault()) {
+if (require(RMariaDB) && mariadbHasDefault()) {
   # connect to test database using rs-dbi
   db <- src_mysql_cnf()
   class(db)

@@ -1,13 +1,13 @@
 #' Execute an SQL script
 #'
-#' @param conn a \code{\link[DBI]{DBIConnection-class}} object
+#' @param conn a [DBI::DBIConnection-class] object
 #' @param script Either a filename pointing to an SQL script or
 #' a character vector of length 1 containing SQL.
 #' @param echo print the SQL commands to the output?
-#' @param ... arguments passed to \code{\link[DBI]{dbExecute}}
-#' @details The SQL script file must be \code{;} delimited.
-#' @return a list of results from \code{dbExecute} for each of the individual
-#' SQL statements in \code{script}.
+#' @param ... arguments passed to [DBI::dbExecute()]
+#' @details The SQL script file must be `;` delimited.
+#' @return a list of results from [DBI::dbExecute()] for each of the individual
+#' SQL statements in `script`.
 #' @export
 #'
 #' @examples
@@ -20,8 +20,8 @@
 #'   dbRunScript(con, "SELECT 1+1 as Two; VACUUM; ANALYZE;")
 #' }
 #' \dontrun{
-#' if (require(RMySQL)) {
-#'  con <- dbConnect(RMySQL::MySQL(), default.file = path.expand("~/.my.cnf"),
+#' if (require(RMariaDB)) {
+#'  con <- dbConnect(RMariaDB::MySQL(), default.file = path.expand("~/.my.cnf"),
 #'    group = "client", user = NULL, password = NULL, dbname = "mysql", host = "127.0.0.1")
 #'  dbRunScript(con, script = sql)
 #'  dbRunScript(con, script = sql2)

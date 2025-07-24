@@ -1,3 +1,9 @@
+# etl 0.4.2 (2025-07-24)
+
+* Switched to base pipe
+* Replaced RMySQL with RMariaDB
+* Converted documentation to Markdown
+
 # etl 0.4.1 (2023-10-12)
 
 * Added call to `dbplyr::src_dbi()` in `verify_con()` to workaround new `dplyr` behavior; #60
